@@ -79,7 +79,7 @@ def plot_variability():
     data['rolling_sigma'].plot()
     
     plt.ylabel('$\sigma$')
-    plt.title('AAPL Rolling Volatility')
+    plt.title('AAPL Stock Price Historical Volatility')
 
     # Connect the event handler to the click event
     cid = plt.gcf().canvas.mpl_connect('button_press_event', on_plot_click)

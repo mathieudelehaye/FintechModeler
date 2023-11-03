@@ -80,4 +80,14 @@ def plot_variability():
     
     plt.ylabel('$\sigma$')
     plt.title('AAPL Rolling Volatility')
+
+    # Connect the event handler to the click event
+    cid = plt.gcf().canvas.mpl_connect('button_press_event', on_plot_click)
+
     plt.show()
+
+# TODO: derive `matplotlib.pyplot` to encapsulate the click event handling.
+def on_plot_click(event):
+    if event.inaxes is not None:
+        # Close the plot window when clicked
+        plt.close()

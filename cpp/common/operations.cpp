@@ -20,6 +20,9 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
+#include <statistics_calculator.h>
+
 extern "C" {
     /*
      * Function: add_integers
@@ -33,5 +36,29 @@ extern "C" {
      */
     int add_integers(int a, int b) {
         return a + b;
+    }
+
+    /*
+     * Function: compute_variability
+     * -----------------------------
+     * Compute the variability of stock prices provided as an input.
+     *
+     * stock_prices: The input array with the stock prices.
+     * variabilities: The output array with the computed variabilities.
+     */
+    double compute_variability(const double stock_prices[], int length) {
+        // for (int i = 0; i < length; i++) {
+        //     std::cout<<"compute_variability: price="<<stock_prices[i]<<std::endl;
+        // }
+        
+        const auto calculator = new StatisticsCalculator();
+
+        calculator->setDataFromArray(stock_prices, length);
+        calculator->setRollingWindow(0, length);
+        const double res = calculator->calculateRollingStandardDeviation();
+
+        delete calculator;
+
+        return res;
     }
 }

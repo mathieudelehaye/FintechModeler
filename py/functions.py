@@ -86,8 +86,15 @@ def cpp_operations_call():
     # Load the C++ library
     operations_lib = ctypes.CDLL('./cpp/build/operations.dylib')
 
-    # Call the 'add' function from the library
+    # Call the 'add_integers' function
     OPERAND_1=5
     OPERAND_2=3
     result=operations_lib.add_integers(OPERAND_1, OPERAND_2)
     print(f"{OPERAND_1}+{OPERAND_2}={result}")
+
+    # Call the 'compute_variability' function
+    # Create a Python list of double values
+    double_array = [ 1, 2, 3 ]
+    # Convert the Python list to a C array
+    c_double_array = (ctypes.c_double * len(double_array))(*double_array)
+    print(f"variability={operations_lib.compute_variability(c_double_array, 3)}")

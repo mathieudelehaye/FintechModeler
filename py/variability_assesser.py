@@ -42,8 +42,8 @@ class VariabilityAssesser:
         Args:
             stock_name (str): The name of the stock for which the price
                 variability must be plot.
-            hide_plot (bool, optional): Set to True hide the plot, e.g. 
-                when unit-testing the method. 
+            hide_plot (bool, optional): Set to True to hide the plot, 
+                e.g. for unit-testing the method. 
         
         Returns:
             int: This is the description of the return value.

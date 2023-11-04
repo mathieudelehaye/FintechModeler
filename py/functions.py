@@ -64,7 +64,7 @@ def bs_put(S, K, T, r, sigma):
     d2 = d1 - sigma* np.sqrt(T)
     return K*np.exp(-r*T)*N(-d2) - S*N(-d1)
 
-def plot_variability(stock_name):
+def plot_variability(stock_name, hide_plot=False):
     """
     Compute and plot the rolling variability, based on the Yahoo 
         Finance data of the `pandas-datareader` library.
@@ -72,9 +72,11 @@ def plot_variability(stock_name):
     Args:
         stock_name (str): The name of the stock for which the price
             variability must be plot.
+        hide_plot (bool, optional): Set to True to hide the plot, 
+            e.g. for unit-testing the method. 
     """
     assesser = VariabilityAssesser()
-    assesser.plot_variability(stock_name, hide_plot=True)
+    assesser.plot_variability(stock_name, hide_plot=hide_plot)
 
 def cpp_operations_call():
     """

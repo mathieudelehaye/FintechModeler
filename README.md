@@ -1,6 +1,8 @@
 # FintechModeler
 A Python and C++ library for fintech modeling.
 
+## How-to guide
+
 First, build the C++ dynamic library:
 ```
 cd <project root>

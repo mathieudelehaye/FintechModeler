@@ -89,5 +89,5 @@ def cpp_operations_call():
     # Call the 'add' function from the library
     OPERAND_1=5
     OPERAND_2=3
-    result=operations_lib.add(OPERAND_1, OPERAND_2)
+    result=operations_lib.add_integers(OPERAND_1, OPERAND_2)
     print(f"{OPERAND_1}+{OPERAND_2}={result}")

@@ -6,7 +6,7 @@ A Python and C++ library for fintech modeling.
 First, build the C++ dynamic library:
 ```
 cd <project root>
-g++ -shared -o cpp/build/operations.dylib -fPIC cpp/operations.cpp
+clear; g++ -shared -I cpp/include -std=c++17 -o cpp/build/operations.dylib -fPIC cpp/common/operations.cpp cpp/common/statistics_calculator.cpp 
 ```
 
 Then, run some unit tests:

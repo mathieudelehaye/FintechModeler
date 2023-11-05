@@ -43,6 +43,11 @@ void StatisticsCalculator::setDataFromArray(const double arr[], int length) {
     for (int i = 0; i < length; i++) {
         completeData.push_back(arr[i]);
     }
+
+    // std::cout<<"StatisticsCalculator::setDataFromArray: length="<<length<<std::endl;
+    // for (int i = 0; i < completeData.size(); i++) {
+    //     std::cout<<"StatisticsCalculator::setDataFromArray: completeData[i]="<<completeData[i]<<std::endl;
+    // }
 }
 
 void StatisticsCalculator::setRollingWindow(
@@ -55,36 +60,41 @@ void StatisticsCalculator::setRollingWindow(
         return; 
     }
 
-    // Define iterators for the start and end of the subset
-    const std::vector<double>::const_iterator start = completeData.begin() + windowStartIndex;
-    const std::vector<double>::const_iterator end = completeData.begin() + windowLength;
+    dataWindow.clear(); // Clear existing rolling window
+    dataWindow.reserve(windowLength);
 
-    if (dataWindow != nullptr) {
-        delete dataWindow;
+    // Define iterators for the start and end of the subset
+    const std::vector<double>::iterator start = completeData.begin() + windowStartIndex;
+    const std::vector<double>::iterator end = start + windowLength;
+
+    for (std::vector<double>::iterator it = start; it != end; ++it) {
+        dataWindow.push_back(*it);
     }
 
-    // Create a new vector containing the subset
-    dataWindow = new std::vector<double>(start, end);
+    // std::cout<<"StatisticsCalculator::setRollingWindow: dataWindow.size()="<<dataWindow.size()<<std::endl;
+    // for (int i = 0; i < dataWindow.size(); i++) {
+    //     std::cout<<"StatisticsCalculator::setRollingWindow: dataWindow[i]="<<dataWindow[i]<<std::endl;
+    // }
 }
 
 double StatisticsCalculator::calculateRollingMean() const {
     if (completeData.empty() || 
-        dataWindow == nullptr) {
+        dataWindow.empty()) {
 
         return 0.0;
     }
 
     double sum = 0.0;
-    for (const double& value : *dataWindow) {
+    for (const double& value : dataWindow) {
         sum += value;
     }
     
-    return sum / dataWindow->size();
+    return sum / dataWindow.size();
 }
 
 double StatisticsCalculator::calculateRollingStandardDeviation() const {
     if (completeData.empty() || 
-        dataWindow == nullptr) {
+        dataWindow.empty()) {
 
         return 0.0;
     }
@@ -92,12 +102,12 @@ double StatisticsCalculator::calculateRollingStandardDeviation() const {
     const double mean = calculateRollingMean();
 
     double sumSquaredDifferences = 0.0;
-    for (const double& value : *dataWindow) {
+    for (const double& value : dataWindow) {
         const double difference = value - mean;
         sumSquaredDifferences += difference * difference;
     }
 
-    const double variance = sumSquaredDifferences / dataWindow->size();
+    const double variance = sumSquaredDifferences / dataWindow.size();
     const double sigma = std::sqrt(variance);
 
     return sigma;

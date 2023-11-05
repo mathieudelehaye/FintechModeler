@@ -50,7 +50,7 @@ class VariabilityAssesser:
         """
 
         # There is a type issue, due to a change in Yahoo Finance API. It needs
-        # a workaround: https://stackoverflow.com/questions/74832296/typeerror-string-indices-must-be-integers-when-getting-data-of-a-stock-from-y
+        # a workaround: https://stackoverflow.com/questions/74832296
         yf.pdr_override() 
 
         symbols = [ stock_name ]

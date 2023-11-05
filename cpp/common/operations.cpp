@@ -45,21 +45,30 @@ extern "C" {
      *
      * stock_prices: The input array with the stock prices.
      * variabilities: The output array with the computed variabilities.
+     * array_length: The input and output array size.
      */
-    double compute_variability(const double stock_prices[], int length) {
-        // std::cout<<"compute_variability: length="<<length<<std::endl;
-        // for (int i = 0; i < length; i++) {
-        //     std::cout<<"compute_variability: price="<<stock_prices[i]<<std::endl;
+    double compute_variability(const double stock_prices[], int array_length) {
+        // std::cout<<"compute_variability: array_length="<<array_length<<std::endl;
+        // for (int i = 0; i < array_length; i++) {
+        //     std::cout<<"compute_variability: stock_prices[i]="<<stock_prices[i]<<std::endl;
         // }
         
         const auto calculator = new StatisticsCalculator();
 
-        calculator->setDataFromArray(stock_prices, length);
-        calculator->setRollingWindow(0, length);
-        const double res = calculator->calculateRollingStandardDeviation();
+        calculator->setDataFromArray(stock_prices, array_length);
+
+        const int rollingWindowSize = 3;
+        for(int i = 0; (i + rollingWindowSize) <= array_length; i++) {
+            calculator->setRollingWindow(i, rollingWindowSize);
+
+            const double res = calculator->calculateRollingStandardDeviation();
+            
+            std::cout<<"compute_variability: res="<<res<<std::endl;
+        }
+
 
         delete calculator;
 
-        return res;
+        return 0;
     }
 }

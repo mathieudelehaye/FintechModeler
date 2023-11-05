@@ -83,8 +83,17 @@ public:
     double calculateRollingStandardDeviation() const;
 
 private:
+    /**
+     * @brief The complete set of data.
+     *
+     * The complete set of data from which the rolling window will be built.
+     */
     std::vector<double> completeData;
 
-    // TODO: do not use raw pointer
-    std::vector<double>* dataWindow = nullptr;
+     /**
+     * @brief The rolling window data.
+     *
+     * The subset of data from the current rolling window.
+     */
+    std::vector<double> dataWindow;
 };

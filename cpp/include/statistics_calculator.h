@@ -84,5 +84,7 @@ public:
 
 private:
     std::vector<double> completeData;
+
+    // TODO: do not use raw pointer
     std::vector<double>* dataWindow = nullptr;
 };

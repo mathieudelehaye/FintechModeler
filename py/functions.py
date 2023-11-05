@@ -11,11 +11,11 @@
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
 # Public License as published by
 # the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-
+# 
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
 # warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
-
+# 
 # You should have received a copy of the GNU Affero General Public License along with this program. If not, see
 # <https:www.gnu.org/licenses/>.
 
@@ -94,7 +94,14 @@ def cpp_operations_call():
 
     # Call the 'compute_variability' function
     # Create a Python list of double values
-    double_array = [ 1, 2, 3 ]
+    double_array = [ 1, 2, 4, 6 ]
+    print(f"X={double_array}")
+
     # Convert the Python list to a C array
     c_double_array = (ctypes.c_double * len(double_array))(*double_array)
-    print(f"variability={operations_lib.compute_variability(c_double_array, 3)}")
+
+    # Specify the return value type
+    operations_lib.compute_variability.restype = ctypes.c_double
+
+    sigma={operations_lib.compute_variability(c_double_array, len(double_array))}
+    print(f"sigma(X)={sigma}")

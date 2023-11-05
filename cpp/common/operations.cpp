@@ -47,6 +47,7 @@ extern "C" {
      * variabilities: The output array with the computed variabilities.
      */
     double compute_variability(const double stock_prices[], int length) {
+        // std::cout<<"compute_variability: length="<<length<<std::endl;
         // for (int i = 0; i < length; i++) {
         //     std::cout<<"compute_variability: price="<<stock_prices[i]<<std::endl;
         // }

@@ -89,14 +89,16 @@ double StatisticsCalculator::calculateRollingStandardDeviation() const {
         return 0.0;
     }
 
-    double mean = calculateRollingMean();
-    double sumSquaredDifferences = 0.0;
+    const double mean = calculateRollingMean();
 
+    double sumSquaredDifferences = 0.0;
     for (const double& value : *dataWindow) {
-        double difference = value - mean;
+        const double difference = value - mean;
         sumSquaredDifferences += difference * difference;
     }
 
-    double variance = sumSquaredDifferences / dataWindow->size();
-    return std::sqrt(variance);
+    const double variance = sumSquaredDifferences / dataWindow->size();
+    const double sigma = std::sqrt(variance);
+
+    return sigma;
 }

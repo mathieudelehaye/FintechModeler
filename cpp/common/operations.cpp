@@ -20,6 +20,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+#include <cmath>
 #include <iostream>
 #include <statistics_calculator.h>
 
@@ -39,35 +40,47 @@ extern "C" {
     }
 
     /*
-     * Function: compute_variability
-     * -----------------------------
+     * Function: compute_variabilities
+     * -------------------------------
      * Compute the variability of stock prices provided as an input.
      *
      * stock_prices: The input array with the stock prices.
      * variabilities: The output array with the computed variabilities.
      * array_length: The input and output array size.
+     * 
+     *  Returns: 
+     *      0 if no issue happened. 
      */
-    double compute_variability(const double stock_prices[], int array_length) {
-        // std::cout<<"compute_variability: array_length="<<array_length<<std::endl;
+    int compute_variabilities(const double stock_prices[], double variabilities[], int array_length) {
+        // std::cout<<"compute_variabilities: array_length="<<array_length<<std::endl;
         // for (int i = 0; i < array_length; i++) {
-        //     std::cout<<"compute_variability: stock_prices[i]="<<stock_prices[i]<<std::endl;
+        //     std::cout<<"compute_variabilities: stock_prices[i]="<<stock_prices[i]<<std::endl;
         // }
         
         const auto calculator = new StatisticsCalculator();
 
         calculator->setDataFromArray(stock_prices, array_length);
+        calculator->convertToRelativeChanges();
 
-        const int rollingWindowSize = 3;
-        for(int i = 0; (i + rollingWindowSize) <= array_length; i++) {
-            calculator->setRollingWindow(i, rollingWindowSize);
+        const int rollingWindowSize = 20;
+        for(int i = 0; i < array_length; i++) {
+            if (i < rollingWindowSize) {
+                variabilities[i] = 0;
+                continue;
+            } 
 
-            const double res = calculator->calculateRollingStandardDeviation();
-            
-            std::cout<<"compute_variability: res="<<res<<std::endl;
+            calculator->setRollingWindow(i - rollingWindowSize, rollingWindowSize);
+
+            const double currentSigma = calculator->calculateRollingStandardDeviation();
+
+            variabilities[i] = currentSigma * std::sqrt(255);
         }
 
-
         delete calculator;
+
+        // for (int i = 0; i < array_length; i++) {
+        //     std::cout<<"compute_variabilities: variabilities[i]="<<variabilities[i]<<std::endl;
+        // }
 
         return 0;
     }

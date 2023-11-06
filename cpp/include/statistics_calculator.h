@@ -50,7 +50,13 @@ public:
      * @param value The data point for setting the vector.
      */
     void setDataFromArray(const double arr[], int length);
-    
+
+    /**
+     * Convert the dataset vector to a relative difference array:
+     *  dataset[i] = (dataset[i] - dataset[i-1])/dataset[i-1]
+     */
+    void convertToRelativeChanges();
+
     /**
      * Set the rolling window subset from the complete dataset.
      * 

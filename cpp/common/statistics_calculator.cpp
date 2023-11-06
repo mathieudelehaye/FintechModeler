@@ -50,6 +50,27 @@ void StatisticsCalculator::setDataFromArray(const double arr[], int length) {
     // }
 }
 
+void StatisticsCalculator::convertToRelativeChanges() {
+    double previousItem=0;
+    double currentItem=0;
+
+    for (std::vector<double>::iterator it = completeData.begin(); it != completeData.end(); ++it) {
+        currentItem = *it;
+        
+        if (it == completeData.begin()) {
+            *it = 0;    
+        } else {
+            *it = (currentItem - previousItem) / previousItem;
+        }
+
+        previousItem = currentItem;
+    }
+
+    // for (int i = 0; i < completeData.size(); i++) {
+    //     std::cout<<"StatisticsCalculator::convertToRelativeChanges: completeData[i]="<<completeData[i]<<std::endl;
+    // }
+}
+
 void StatisticsCalculator::setRollingWindow(
     int windowStartIndex,
     int windowLength

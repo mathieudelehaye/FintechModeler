@@ -45,8 +45,11 @@ class TestFunctions(unittest.TestCase):
         # `bs_put` function
         self.assertEqual(round(f.bs_put(10218, 9800, 17/365, .05, .348652), 2), 129.71)
         
-        # `plot_variability` function
-        f.plot_variability('AAPL', hide_plot=True)
+        # `python_stock_price_variability` function
+        f.python_stock_price_variability('AAPL', hide_plot=True)
+        
+        # `cpp_stock_price_variability` function
+        f.cpp_stock_price_variability('AAPL', hide_plot=True)
 
         # `cpp_operations_call` function
         f.cpp_operations_call()

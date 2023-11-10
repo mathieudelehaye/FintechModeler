@@ -24,6 +24,7 @@ from pandas_datareader import data as pdr
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import yfinance as yf
 
 class VariabilityAssesser:
@@ -34,7 +35,9 @@ class VariabilityAssesser:
         _stock_name (str): The name of the stock for which the 
             price variability must be computed.
         _stock_prices (array): An indexed array, which contains the 
-        stock price data. Read the array description below. 
+            stock price data. Read the array description below. 
+        _variabilities (list): A list with the computed rolling
+            variabilities.
     """
 
     def __init__(self, stock_name):
@@ -47,8 +50,9 @@ class VariabilityAssesser:
         """
         self._stock_name = stock_name
         self._stock_prices = []
+        self._variabilities = []
 
-    def get_stock_prices(self):
+    def get_stock_price(self):
         """
         Getter for the stock prices.
         
@@ -64,7 +68,7 @@ class VariabilityAssesser:
         """
         return self._stock_prices
 
-    def get_variabilities(self):
+    def get_variability(self):
         """
         Getter for the stock price variabilities.
         
@@ -78,18 +82,34 @@ class VariabilityAssesser:
             ...
             2010-02-02      0.364328
         """
-        return self._stock_prices['rolling_sigma']
+        return self._variabilities
 
-    def read_stock_prices(self, slice_size=0):
+    def import_variability(self, values):
+        """
+        Setter for the stock price variabilities.
+
+        Args:
+            values (list): a list with the rolling variabilities.
+        
+        Returns:
+            True if the values were correctly written.
+        """
+
+        self._variabilities['variability'] = values[:len(self._variabilities['variability'])]
+        # print(self._variabilities.head(50))
+
+        return True
+
+    def read_stock_price(self, slice_limit=0):
         """
         Read the underlying stock prices from the Yahoo Finance 
         data of the `pandas-datareader` library.
         Those prices will be used to compute the variability.
 
         Args:
-            slice_size (optional, int): if greater than 0, sample a slice
-                of the `slice_size` first data rows, and replace the data 
-                array with it.
+            slice_limit (optional, int): if greater than 0, take a slice
+                of the `slice_limit` first data rows and replace the stock 
+                price array with it.
         """
         
         # There is a type issue, due to a change in Yahoo Finance API. It needs
@@ -102,13 +122,19 @@ class VariabilityAssesser:
         self._stock_prices = pdr.get_data_yahoo(symbols, start=start_date, end=end_date)
         # print(self._stock_prices.head(10))
 
-        if (slice_size > 0):
-            # keep a slice with the first `slice_size` rows
-            end_index_number=slice_size-1
+        if (slice_limit > 0):
+            # keep a slice with the first `slice_limit` rows
+            end_index_number=slice_limit-1
             end_index_name=self._stock_prices.index[end_index_number]
+            print(end_index_name)
             self._stock_prices=self._stock_prices.loc[:end_index_name]
         
         # print(self._stock_prices)
+
+        # Prepare the empty variability dataframe
+        indices=self._stock_prices.index.tolist()
+        self._variabilities = pd.DataFrame([0] * len(indices), columns=['variability'], index=indices)
+        # print(self._variabilities)
 
     def compute_variability(self):
         """
@@ -116,11 +142,11 @@ class VariabilityAssesser:
         """
 
         self._stock_prices['change'] = self._stock_prices['Adj Close'].pct_change()
-        self._stock_prices['rolling_sigma'] = self._stock_prices['change'].rolling(20).std() * np.sqrt(255)
+        self._variabilities = self._stock_prices['change'].rolling(20).std() * np.sqrt(255)
 
-        # print(f"mean: {self._stock_prices['rolling_sigma'].mean()}")
-        # print(f"std: {self._stock_prices['rolling_sigma'].std()}")
-        # print(self._stock_prices['rolling_sigma'].head(50))
+        # print(f"mean: {self._variabilities.mean()}")
+        # print(f"std: {self._variabilities.std()}")
+        # print(self._variabilities.head(50))
 
     def plot_variability(self):
         """
@@ -134,7 +160,7 @@ class VariabilityAssesser:
             int: This is the description of the return value.
         """
         
-        self._stock_prices['rolling_sigma'].plot()
+        self._variabilities.plot()
             
         plt.ylabel('$\sigma$')
         plt.title('AAPL Stock Price Historical Volatility')

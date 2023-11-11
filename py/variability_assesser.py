@@ -79,7 +79,7 @@ class VariabilityAssesser:
         """
         # print(f"VariabilityAssesser.get_variability_dict: self._variabilities=\n{self._variabilities}")
 
-        return dict(zip(self._variabilities.index, self._variabilities['variability']))
+        return dict(zip(self._variabilities.index, self._variabilities['Variability']))
 
     def import_variability(self, values):
         """
@@ -92,7 +92,7 @@ class VariabilityAssesser:
             bool: True if the values were correctly written.
         """
 
-        self._variabilities['variability'] = values[:len(self._variabilities['variability'])]
+        self._variabilities['Variability'] = values[:len(self._variabilities['Variability'])]
         # print(f"VariabilityAssesser.import_variability: self._variabilities=\n{self._variabilities}")
 
         return True
@@ -116,21 +116,22 @@ class VariabilityAssesser:
         symbols = [ self._stock_name ]
         start_date = datetime(2010,1,1)    
         end_date = datetime(2020,10,1) 
-        self._stock_prices = pdr.get_data_yahoo(symbols, start=start_date, end=end_date)
+        temp = pdr.get_data_yahoo(symbols, start=start_date, end=end_date)
         # print(self._stock_prices.head(10))
 
         if (slice_limit > 0):
             # keep a slice with the first `slice_limit` rows
-            end_index_number=slice_limit-1
-            end_index_name=self._stock_prices.index[end_index_number]
+            end_index_number = slice_limit-1
+            end_index_name = temp.index[end_index_number]
             # print(end_index_name)
-            self._stock_prices=self._stock_prices.loc[:end_index_name]
-        
+            self._stock_prices = temp.loc[:end_index_name].copy()
+        else:   
+            self._stock_prices = temp.copy()
         # print(self._stock_prices)
 
         # Prepare the empty variability dataframe
         indices=self._stock_prices.index.tolist()
-        self._variabilities = pd.DataFrame([0] * len(indices), columns=['variability'], index=indices)
+        self._variabilities = pd.DataFrame([0] * len(indices), columns=['Variability'], index=indices)
         # print(f"VariabilityAssesser.read_stock_price: self._variabilities=\n{self._variabilities}")
 
     def compute_variability(self):
@@ -138,8 +139,9 @@ class VariabilityAssesser:
         Compute the rolling variability and add it to the stock price data.
         """
 
-        self._stock_prices['change'] = self._stock_prices['Adj Close'].pct_change()
-        self._variabilities['variability'] = self._stock_prices['change'].rolling(20).std() * np.sqrt(255)
+        # print(f"VariabilityAssesser.compute_variability: self._stock_prices=\n{self._stock_prices}")
+        self._stock_prices['Change'] = self._stock_prices['Adj Close'].pct_change()
+        self._variabilities['Variability'] = self._stock_prices['Change'].rolling(20).std() * np.sqrt(255)
 
         # print(f"mean: {self._variabilities.mean()}")
         # print(f"std: {self._variabilities.std()}")

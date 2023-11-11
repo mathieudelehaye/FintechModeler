@@ -34,10 +34,10 @@ class VariabilityAssesser:
     Attributes:
         _stock_name (str): The name of the stock for which the 
             price variability must be computed.
-        _stock_prices (array): An indexed array, which contains the 
+        _stock_prices (pandas.DataFrame): An object which contains the 
             stock price data. Read the array description below. 
-        _variabilities (list): A list with the computed rolling
-            variabilities.
+        _variabilities (pandas.DataFrame): An object which contains the
+            computed rolling variabilities.
     """
 
     def __init__(self, stock_name):
@@ -52,14 +52,14 @@ class VariabilityAssesser:
         self._stock_prices = []
         self._variabilities = []
 
-    def get_stock_price(self):
+    def get_stock_prices(self):
         """
         Getter for the stock prices.
         
         Returns:
-            An indexed array, which contains the stock price data. The row indices
-            are of `datetime` type and the column values are double (except when 
-            noted).
+            pandas.DataFrame: an object which contains the stock price data. The row 
+            indices are of `datetime` type and the column values are of double type 
+            (except when noted).
             
             Date (index)   Open      High       Low     Close  Adj Close      Volume [int]
             ------------------------------------------------------------------------------
@@ -68,21 +68,18 @@ class VariabilityAssesser:
         """
         return self._stock_prices
 
-    def get_variability(self):
+    def get_variability_dict(self):
         """
-        Getter for the stock price variabilities.
+        Getter for the stock price variabilities as an array.
         
         Returns:
-            An indexed array, which contains the stock price variabilities. The row indices
-            are of `datetime` type and the column values are double.
-            
-            Date (index)   Variability
-            --------------------------
-            2010-01-04         NaN
-            ...
-            2010-02-02      0.364328
+            dict: 
+                - The key is of `datetime` type and represents the variability date.
+                - The value is of double type and represents the variability.
         """
-        return self._variabilities
+        # print(f"VariabilityAssesser.get_variability_dict: self._variabilities=\n{self._variabilities}")
+
+        return dict(zip(self._variabilities.index, self._variabilities['variability']))
 
     def import_variability(self, values):
         """
@@ -92,11 +89,11 @@ class VariabilityAssesser:
             values (list): a list with the rolling variabilities.
         
         Returns:
-            True if the values were correctly written.
+            bool: True if the values were correctly written.
         """
 
         self._variabilities['variability'] = values[:len(self._variabilities['variability'])]
-        # print(self._variabilities.head(50))
+        # print(f"VariabilityAssesser.import_variability: self._variabilities=\n{self._variabilities}")
 
         return True
 
@@ -126,7 +123,7 @@ class VariabilityAssesser:
             # keep a slice with the first `slice_limit` rows
             end_index_number=slice_limit-1
             end_index_name=self._stock_prices.index[end_index_number]
-            print(end_index_name)
+            # print(end_index_name)
             self._stock_prices=self._stock_prices.loc[:end_index_name]
         
         # print(self._stock_prices)
@@ -134,7 +131,7 @@ class VariabilityAssesser:
         # Prepare the empty variability dataframe
         indices=self._stock_prices.index.tolist()
         self._variabilities = pd.DataFrame([0] * len(indices), columns=['variability'], index=indices)
-        # print(self._variabilities)
+        # print(f"VariabilityAssesser.read_stock_price: self._variabilities=\n{self._variabilities}")
 
     def compute_variability(self):
         """
@@ -142,23 +139,17 @@ class VariabilityAssesser:
         """
 
         self._stock_prices['change'] = self._stock_prices['Adj Close'].pct_change()
-        self._variabilities = self._stock_prices['change'].rolling(20).std() * np.sqrt(255)
+        self._variabilities['variability'] = self._stock_prices['change'].rolling(20).std() * np.sqrt(255)
 
         # print(f"mean: {self._variabilities.mean()}")
         # print(f"std: {self._variabilities.std()}")
-        # print(self._variabilities.head(50))
+        # print(f"VariabilityAssesser.compute_variability: self._variabilities=\n{self._variabilities}")
 
     def plot_variability(self):
         """
         Plot the rolling variability.
-        
-        Args:
-            hide_plot (bool, optional): Set to True to hide the plot, 
-                e.g. for unit-testing the method. 
-        
-        Returns:
-            int: This is the description of the return value.
         """
+        print(f"VariabilityAssesser.plot_variability: self._variabilities=\n{self._variabilities}")
         
         self._variabilities.plot()
             

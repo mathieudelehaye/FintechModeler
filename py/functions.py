@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU Affero General Public License along with this program. If not, see
 # <https:www.gnu.org/licenses/>.
 
+from datetime import datetime
+from enum import Enum, auto
 from py.variability_assesser import VariabilityAssesser
 from scipy.stats import norm
 
@@ -27,6 +29,13 @@ import numpy as np
 import unittest
 
 N = norm.cdf
+
+class ImplementationMethod(Enum):
+    """
+    List of methods to implement an algorithm.
+    """
+    Python = "Python"
+    Cpp = "C/C++"
 
 def bs_call(S, K, T, r, sigma):
     """
@@ -64,7 +73,7 @@ def bs_put(S, K, T, r, sigma):
     d2 = d1 - sigma* np.sqrt(T)
     return K*np.exp(-r*T)*N(-d2) - S*N(-d1)
 
-def python_stock_price_variability(stock_name, hide_plot=False):
+def stock_price_variability(stock_name, implementations=[ImplementationMethod.Python], hide_plot=False):
     """
     Compute and plot the rolling variability, based on the Yahoo 
         Finance data of the `pandas-datareader` library.
@@ -74,47 +83,88 @@ def python_stock_price_variability(stock_name, hide_plot=False):
     Args:
         stock_name (str): The name of the stock for which the price
             variability must be plot.
+        implementations (list, optional): List of enum items of type 
+            `ImplementationMethod`, which represent the methods to implement the 
+            varability calculation. Default value: [ImplementationMethod.Python]
         hide_plot (bool, optional): Set to True to hide the plot, 
-            e.g. for unit-testing the method. 
+            e.g. for unit-testing the method. Default value: False
+
+    Returns:
+        dict: A dictionary with the calculated variabilities for different methods:
+            - They key is of ImplementationMethod type and represents the implementation 
+            method
+            - The value is of dict type, with:
+                - They key is of datetime type and represents the variability date
+                - They value is of double type and represents the variability.
     """
     assesser = VariabilityAssesser(stock_name)
 
     # Read the data
-    assesser.read_stock_price(50)
-    # assesser.read_stock_price()
+    # assesser.read_stock_price(50)
+    assesser.read_stock_price()
 
-    # Compute the variabilities 
-    assesser.compute_variability()
+    # Compute the variabilities with different methods  
+    before_calculation_timestamp = 0
+    after_calculation_timestamp = 0
 
-    # Plot the results
-    if not hide_plot:
-        assesser.plot_variability()
+    res = dict()
 
-def cpp_stock_price_variability(stock_name, hide_plot=False):
+    for implementation in implementations:
+        res[implementation] = (
+            python_stock_price_variability(assesser) 
+                if implementation == ImplementationMethod.Python 
+            else cpp_stock_price_variability(assesser)            
+        )
+            
+        # Plot the results
+        if not hide_plot:
+            assesser.plot_variability()
+
+    return res 
+
+def python_stock_price_variability(assesser):
     """
-    Compute and plot the rolling variability, based on the Yahoo 
-        Finance data of the `pandas-datareader` library.
-    This main calculation function, that the current function calls,
-        is purely implemented in C/C++.
+    Calculate the stock price variability using the Python implementation
+    method.
 
     Args:
-        stock_name (str): The name of the stock for which the price
-            variability must be plot.
-        hide_plot (bool, optional): Set to True to hide the plot, 
-            e.g. for unit-testing the method. 
+        assesser (VariabilityAssesser): The object used to provide the input data.
+            The method `read_stock_price` must have been called on this object.
+
+    Returns:
+        array: The calculated variabilities, with the following columns:
+            - The variability date of `datetime` type
+            - The variability of double type.
     """
-    assesser = VariabilityAssesser(stock_name)
 
-    # Read the data
-    assesser.read_stock_price(50)
-    # assesser.read_stock_price()
+    before_calculation_timestamp = datetime.now()
+    assesser.compute_variability()
+    after_calculation_timestamp = datetime.now()
 
-    # Compute the variabilities using a C/C++ function
-    
+    print(
+        f"Calculation duration for Python method: "
+        f"{(after_calculation_timestamp - before_calculation_timestamp).total_seconds() * 1000} ms")
+
+    return assesser.get_variability_dict()
+
+def cpp_stock_price_variability(assesser):
+    """
+    Calculate the stock price variability using the C/C++ implementation
+    method.
+
+    Args:
+        assesser (VariabilityAssesser): The object used to provide the input data.
+            The method `read_stock_price` must have been called on this object.
+
+    Returns:
+        array: The calculated variabilities, with the following columns:
+            - The variability date of `datetime` type
+            - The variability of double type.
+    """
     # Load the C++ library
     operations_lib = ctypes.CDLL('./cpp/build/operations.dylib')
     
-    input_array = assesser.get_stock_price()['Adj Close'].to_list()
+    input_array = assesser.get_stock_prices()['Adj Close'].to_list()
     # print(f"X={input_array}")
 
     data_number = len(input_array)
@@ -131,7 +181,14 @@ def cpp_stock_price_variability(stock_name, hide_plot=False):
     # Specify the return value type
     operations_lib.compute_variabilities.restype = ctypes.c_int
 
+    before_calculation_timestamp = datetime.now()
     res=operations_lib.compute_variabilities(c_double_input_array, c_double_output_array, data_number)
+    after_calculation_timestamp = datetime.now()
+
+    print(
+        f"Calculation duration for C/C++ method: "
+        f"{(after_calculation_timestamp - before_calculation_timestamp).total_seconds() * 1000} ms")
+
     if (res == 0):
         print("sigma(X)=")
         # for i in range(len(c_double_output_array)):
@@ -140,9 +197,7 @@ def cpp_stock_price_variability(stock_name, hide_plot=False):
     else:
         print(f"An error happened: res={res}")
 
-    # Plot the results
-    if not hide_plot:
-        assesser.plot_variability()
+    return assesser.get_variability_dict()
 
 def cpp_operations_call():
     """

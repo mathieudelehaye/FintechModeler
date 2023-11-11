@@ -23,6 +23,9 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../..') # add the project root path
 
+from py.functions import ImplementationMethod
+
+import math
 import py.functions as f
 import unittest
 
@@ -45,11 +48,34 @@ class TestFunctions(unittest.TestCase):
         # `bs_put` function
         self.assertEqual(round(f.bs_put(10218, 9800, 17/365, .05, .348652), 2), 129.71)
         
-        # `python_stock_price_variability` function
-        f.python_stock_price_variability('AAPL', hide_plot=True)
+        # `stock_price_variability` function
+        res = f.stock_price_variability('AAPL', [ImplementationMethod.Python, ImplementationMethod.Cpp], hide_plot=True)
         
-        # `cpp_stock_price_variability` function
-        f.cpp_stock_price_variability('AAPL', hide_plot=True)
+        # Python implementation for the calculation
+        python_res_dict = res[ImplementationMethod.Python]
+        python_res_dict_first_key = next(iter(python_res_dict.keys()))
+        self.assertEqual(python_res_dict_first_key.strftime("%Y-%m-%d %H:%M:%S"), '2010-01-04 00:00:00')
+        python_res_dict_last_key = next(reversed(python_res_dict.keys()))
+        self.assertEqual(python_res_dict_last_key.strftime("%Y-%m-%d %H:%M:%S"), '2020-09-30 00:00:00')
+        python_res_dict_values = python_res_dict.values()
+        # print([item for item in python_res_dict_values][:50])
+        # Only keep the numerical and non-NaN values
+        filtered_python_res_dict_values = [item for item in python_res_dict_values 
+            if isinstance(item, (int, float)) and not math.isnan(item)]
+        self.assertEqual(round(sum(filtered_python_res_dict_values), 2), 688.36)
+
+        # C++ implementation for the calculation
+        cpp_res_dict = res[ImplementationMethod.Cpp]
+        cpp_res_dict_first_key = next(iter(cpp_res_dict.keys()))
+        self.assertEqual(cpp_res_dict_first_key.strftime("%Y-%m-%d %H:%M:%S"), '2010-01-04 00:00:00')
+        cpp_res_dict_last_key = next(reversed(cpp_res_dict.keys()))
+        self.assertEqual(cpp_res_dict_last_key.strftime("%Y-%m-%d %H:%M:%S"), '2020-09-30 00:00:00')
+        cpp_res_dict_values = cpp_res_dict.values()
+        # print([item for item in cpp_res_dict_values][:50])
+        # Only keep the numerical and non-NaN values
+        filtered_cpp_res_dict_values = [item for item in cpp_res_dict_values 
+            if isinstance(item, (int, float)) and not math.isnan(item)]
+        self.assertEqual(round(sum(filtered_cpp_res_dict_values), 2), 670.76)
 
         # `cpp_operations_call` function
         f.cpp_operations_call()

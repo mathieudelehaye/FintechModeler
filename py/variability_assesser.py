@@ -20,6 +20,7 @@
 # <https:www.gnu.org/licenses/>.
 
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from pandas_datareader import data as pdr
 
 import matplotlib.pyplot as plt
@@ -114,8 +115,8 @@ class VariabilityAssesser:
         yf.pdr_override() 
 
         symbols = [ self._stock_name ]
-        start_date = datetime(2010,1,1)    
-        end_date = datetime(2020,10,1) 
+        start_date = datetime.today() - relativedelta(months=6)
+        end_date = datetime.today() - relativedelta(days=1)
         temp = pdr.get_data_yahoo(symbols, start=start_date, end=end_date)
         # print(self._stock_prices.head(10))
 
@@ -127,7 +128,8 @@ class VariabilityAssesser:
             self._stock_prices = temp.loc[:end_index_name].copy()
         else:   
             self._stock_prices = temp.copy()
-        # print(self._stock_prices)
+        # print(f"VariabilityAssesser.read_stock_price: self._stock_prices=\n{self._stock_prices}")
+        # print(f"VariabilityAssesser.read_stock_price: len(self._stock_prices)=\n{len(self._stock_prices)}")
 
         # Prepare the empty variability dataframe
         indices=self._stock_prices.index.tolist()
@@ -139,13 +141,14 @@ class VariabilityAssesser:
         Compute the rolling variability and add it to the stock price data.
         """
 
-        # print(f"VariabilityAssesser.compute_variability: self._stock_prices=\n{self._stock_prices}")
-        self._stock_prices['Change'] = self._stock_prices['Adj Close'].pct_change()
-        self._variabilities['Variability'] = self._stock_prices['Change'].rolling(20).std() * np.sqrt(255)
+        self._stock_prices['Rel Change'] = self._stock_prices['Adj Close'].pct_change()
+        print(f"VariabilityAssesser.compute_variability: self._stock_prices=\n{self._stock_prices}")
 
-        # print(f"mean: {self._variabilities.mean()}")
-        # print(f"std: {self._variabilities.std()}")
-        # print(f"VariabilityAssesser.compute_variability: self._variabilities=\n{self._variabilities}")
+        self._variabilities['Variability'] = self._stock_prices['Rel Change'].rolling(20).std() * np.sqrt(255)
+
+        print(f"mean: {self._variabilities.mean()}")
+        print(f"std: {self._variabilities.std()}")
+        print(f"VariabilityAssesser.compute_variability: self._variabilities.loc[20:]=\n{self._variabilities[20:]}")
 
     def plot_variability(self):
         """

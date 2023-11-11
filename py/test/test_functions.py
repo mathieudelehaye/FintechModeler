@@ -23,6 +23,8 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../..') # add the project root path
 
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from py.functions import ImplementationMethod
 
 import math
@@ -51,34 +53,57 @@ class TestFunctions(unittest.TestCase):
         # `stock_price_variability` function
         res = f.stock_price_variability('AAPL', [ImplementationMethod.Python, ImplementationMethod.Cpp], hide_plot=True)
         
+        start_date = datetime.today() - relativedelta(months=6)
+        end_date = datetime.today() - relativedelta(days=1)
+        variability_sum_lower_limit = 1
+        variability_sum_upper_limit = 1000
+
         # Python implementation for the calculation
         python_res_dict = res[ImplementationMethod.Python]
         python_res_dict_first_key = next(iter(python_res_dict.keys()))
-        self.assertEqual(python_res_dict_first_key.strftime("%Y-%m-%d %H:%M:%S"), '2010-01-04 00:00:00')
+        self.assertEqual(python_res_dict_first_key.strftime("%Y-%m-%d %H:%M:%S"), start_date.strftime("%Y-%m-%d 00:00:00"))
         python_res_dict_last_key = next(reversed(python_res_dict.keys()))
-        self.assertEqual(python_res_dict_last_key.strftime("%Y-%m-%d %H:%M:%S"), '2020-09-30 00:00:00')
+        self.assertEqual(python_res_dict_last_key.strftime("%Y-%m-%d %H:%M:%S"), end_date.strftime("%Y-%m-%d 00:00:00"))
         python_res_dict_values = python_res_dict.values()
         # print([item for item in python_res_dict_values][:50])
         # Only keep the numerical and non-NaN values
         filtered_python_res_dict_values = [item for item in python_res_dict_values 
             if isinstance(item, (int, float)) and not math.isnan(item)]
-        self.assertEqual(round(sum(filtered_python_res_dict_values), 2), 688.36)
+        variability_sum = sum(filtered_python_res_dict_values)
+        self.assertTrue(self._check_value_in_range(variability_sum, variability_sum_lower_limit, variability_sum_upper_limit),
+            f"Value {variability_sum} is not in the specified range [{variability_sum_lower_limit}, {variability_sum_upper_limit}]")
 
         # C++ implementation for the calculation
         cpp_res_dict = res[ImplementationMethod.Cpp]
         cpp_res_dict_first_key = next(iter(cpp_res_dict.keys()))
-        self.assertEqual(cpp_res_dict_first_key.strftime("%Y-%m-%d %H:%M:%S"), '2010-01-04 00:00:00')
+        self.assertEqual(cpp_res_dict_first_key.strftime("%Y-%m-%d %H:%M:%S"), start_date.strftime("%Y-%m-%d 00:00:00"))
         cpp_res_dict_last_key = next(reversed(cpp_res_dict.keys()))
-        self.assertEqual(cpp_res_dict_last_key.strftime("%Y-%m-%d %H:%M:%S"), '2020-09-30 00:00:00')
+        self.assertEqual(cpp_res_dict_last_key.strftime("%Y-%m-%d %H:%M:%S"), end_date.strftime("%Y-%m-%d 00:00:00"))
         cpp_res_dict_values = cpp_res_dict.values()
         # print([item for item in cpp_res_dict_values][:50])
         # Only keep the numerical and non-NaN values
         filtered_cpp_res_dict_values = [item for item in cpp_res_dict_values 
             if isinstance(item, (int, float)) and not math.isnan(item)]
-        self.assertEqual(round(sum(filtered_cpp_res_dict_values), 2), 670.76)
+        variability_sum = sum(filtered_cpp_res_dict_values)
+        self.assertTrue(self._check_value_in_range(variability_sum, variability_sum_lower_limit, variability_sum_upper_limit),
+            f"Value {variability_sum} is not in the specified range [{variability_sum_lower_limit}, {variability_sum_upper_limit}]")
 
         # `cpp_operations_call` function
         f.cpp_operations_call()
+
+    def _check_value_in_range(self, value, lower_limit, upper_limit):
+        """
+        Check if a value is in a provided range.
+
+        Args:
+            value (double): The value to check.
+            lower_limit (double): The lower limit tolerance for the value.
+            upper_limit (double): The upper limit tolerance for the value.
+
+        Returns:
+            bool: True if the value is in the provided range.
+        """
+        return lower_limit <= value <= upper_limit
 
 if __name__ == '__main__':
     unittest.main()

@@ -88,11 +88,11 @@ class TestFunctions(unittest.TestCase):
         interest_rate=.0525
         # self.assertEqual(round(f.bs_call(stock_price, 180, expiration_days/365, interest_rate, .190118), 2), 570.50) 
         
+        print(f"Strike\tStock\tExp. [d]\tCall")
         strike_prices=[180,182.5,185,187.5,190,192.5]
         for strike_price in strike_prices:
-            print(f"For a strike price of {strike_price}, the maximum call price, for a stock price of {stock_price} " 
-                f"and an expiration of {expiration_days} days, is "
-                f"{round(f.bs_call(stock_price, strike_price, expiration_days/365, interest_rate, .190118), 2)}")
+            call_price=round(f.bs_call(stock_price, strike_price, expiration_days/365, interest_rate, .190118), 2)
+            print(f"{strike_price}\t{stock_price}\t{expiration_days}\t{call_price}")
 
         # `bs_put` function
         self.assertEqual(round(f.bs_put(10218, 9800, 17/365, .05, .348652), 2), 129.71)

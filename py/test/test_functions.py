@@ -43,18 +43,12 @@ class TestFunctions(unittest.TestCase):
         TODO:
             - Split this unique UT test case (TC) into different methods.
         """
-
-        # `bs_call` function
-        self.assertEqual(round(f.bs_call(10218, 9800, 17/365, .05, .348652), 2), 570.50)
         
-        # `bs_put` function
-        self.assertEqual(round(f.bs_put(10218, 9800, 17/365, .05, .348652), 2), 129.71)
-        
-        # `stock_price_variability` function
+        # `stock_price_variability` function. E.g.: 'AV.L' for Aviva LSE, 'AAPL' for Apple NYSE
         res = f.stock_price_variability('AAPL', [ImplementationMethod.Python, ImplementationMethod.Cpp], hide_plot=True)
         
         start_date = datetime.today() - relativedelta(months=6)
-        end_date = datetime.today() - relativedelta(days=1)
+        end_date = datetime.today() - relativedelta(days=2)
         variability_sum_lower_limit = 1
         variability_sum_upper_limit = 1000
 
@@ -87,6 +81,22 @@ class TestFunctions(unittest.TestCase):
         variability_sum = sum(filtered_cpp_res_dict_values)
         self.assertTrue(self._check_value_in_range(variability_sum, variability_sum_lower_limit, variability_sum_upper_limit),
             f"Value {variability_sum} is not in the specified range [{variability_sum_lower_limit}, {variability_sum_upper_limit}]")
+
+        # `bs_call` function
+        stock_price=186
+        expiration_days=5
+        interest_rate=.0525
+        # self.assertEqual(round(f.bs_call(stock_price, 180, expiration_days/365, interest_rate, .190118), 2), 570.50) 
+        
+        # strike_prices=[180,182.5,185,187.5,190,192.5]
+        strike_prices=[50]
+        for strike_price in strike_prices:
+            print(f"For a strike price of {strike_price}, the maximum call price, for a stock price of {stock_price} " 
+                f"and an expiration of {expiration_days} days, is "
+                f"{round(f.bs_call(stock_price, strike_price, expiration_days/365, interest_rate, .190118), 2)}")
+
+        # `bs_put` function
+        self.assertEqual(round(f.bs_put(10218, 9800, 17/365, .05, .348652), 2), 129.71)
 
         # `cpp_operations_call` function
         f.cpp_operations_call()

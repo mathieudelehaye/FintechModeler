@@ -21,7 +21,7 @@
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from pandas_datareader import data as pdr
+from pandas_datareader import data as pndr
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -115,9 +115,13 @@ class VariabilityAssesser:
         yf.pdr_override() 
 
         symbols = [ self._stock_name ]
+
+        # Doesn't work due to API issue: https://github.com/pydata/pandas-datareader/issues/962
+        # print(f"VariabilityAssesser.read_stock_price: spndr.get_quote_yahoo(symbols)=\n{pndr.get_quote_yahoo(symbols)[['longName', 'exchange', 'fullExchangeName', 'currency', 'quoteType', ]].T}")
+
         start_date = datetime.today() - relativedelta(months=6)
         end_date = datetime.today() - relativedelta(days=1)
-        temp = pdr.get_data_yahoo(symbols, start=start_date, end=end_date)
+        temp = pndr.get_data_yahoo(symbols, start=start_date, end=end_date)
         # print(self._stock_prices.head(10))
 
         if (slice_limit > 0):

@@ -93,15 +93,12 @@ def stock_price_variability(stock_name, implementations=[ImplementationMethod.Py
         dict: A dictionary with the calculated variabilities for different methods:
             - They key is of ImplementationMethod type and represents the implementation 
             method
-            - The value is of dict type, with:
-                - They key is of datetime type and represents the variability date
-                - They value is of double type and represents the variability.
+            - The value is of float type and represents the variability.
     """
     assesser = VariabilityAssesser(stock_name)
 
     # Read the data
-    # assesser.read_stock_price(50)
-    assesser.read_stock_price()
+    assesser.read_stock_price(2)
 
     # Compute the variabilities with different methods  
     before_calculation_timestamp = 0
@@ -132,20 +129,18 @@ def python_stock_price_variability(assesser):
             The method `read_stock_price` must have been called on this object.
 
     Returns:
-        array: The calculated variabilities, with the following columns:
-            - The variability date of `datetime` type
-            - The variability of double type.
+        float: The calculated variability.
     """
 
     before_calculation_timestamp = datetime.now()
-    assesser.compute_variability()
+    variability = assesser.compute_variability()
     after_calculation_timestamp = datetime.now()
 
     print(
         f"Calculation duration for Python method: "
         f"{(after_calculation_timestamp - before_calculation_timestamp).total_seconds() * 1000} ms")
 
-    return assesser.get_variability_dict()
+    return variability
 
 def cpp_stock_price_variability(assesser):
     """
@@ -157,9 +152,8 @@ def cpp_stock_price_variability(assesser):
             The method `read_stock_price` must have been called on this object.
 
     Returns:
-        array: The calculated variabilities, with the following columns:
-            - The variability date of `datetime` type
-            - The variability of double type.
+        Returns:
+            float: The calculated variability.
     """
     # Load the C++ library
     operations_lib = ctypes.CDLL('./cpp/build/operations.dylib')
@@ -179,25 +173,22 @@ def cpp_stock_price_variability(assesser):
         c_double_output_array[i] = 0
 
     # Specify the return value type
-    operations_lib.compute_variabilities.restype = ctypes.c_int
+    operations_lib.compute_variability.restype = ctypes.c_double
 
     before_calculation_timestamp = datetime.now()
-    res=operations_lib.compute_variabilities(c_double_input_array, c_double_output_array, data_number)
+    variability=operations_lib.compute_variability(c_double_input_array, c_double_output_array, data_number)
     after_calculation_timestamp = datetime.now()
 
     print(
         f"Calculation duration for C/C++ method: "
         f"{(after_calculation_timestamp - before_calculation_timestamp).total_seconds() * 1000} ms")
 
-    if (res == 0):
-        print("sigma(X)=")
-        # for i in range(len(c_double_output_array)):
-        #     print(f"c_double_output_array[i]={c_double_output_array[i]}")
-        assesser.import_variability(c_double_output_array) 
-    else:
-        print(f"An error happened: res={res}")
+    print("sigma(X)=")
+    # for i in range(len(c_double_output_array)):
+    #     print(f"c_double_output_array[i]={c_double_output_array[i]}")
+    assesser.import_variability(c_double_output_array) 
 
-    return assesser.get_variability_dict()
+    return variability
 
 def cpp_operations_call():
     """

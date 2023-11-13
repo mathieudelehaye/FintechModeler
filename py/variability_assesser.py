@@ -59,7 +59,7 @@ class VariabilityAssesser:
         
         Returns:
             pandas.DataFrame: an object which contains the stock price data. The row 
-            indices are of `datetime` type and the column values are of double type 
+            indices are of `datetime` type and the column values are of float type 
             (except when noted).
             
             Date (index)   Open      High       Low     Close  Adj Close      Volume [int]
@@ -76,7 +76,7 @@ class VariabilityAssesser:
         Returns:
             dict: 
                 - The key is of `datetime` type and represents the variability date.
-                - The value is of double type and represents the variability.
+                - The value is of float type and represents the variability.
         """
         # print(f"VariabilityAssesser.get_variability_dict: self._variabilities=\n{self._variabilities}")
 
@@ -98,16 +98,22 @@ class VariabilityAssesser:
 
         return True
 
-    def read_stock_price(self, slice_limit=0):
+    def read_stock_price(self, start_month=6, end_month=0):
         """
         Read the underlying stock prices from the Yahoo Finance 
         data of the `pandas-datareader` library.
         Those prices will be used to compute the variability.
 
         Args:
-            slice_limit (optional, int): if greater than 0, take a slice
-                of the `slice_limit` first data rows and replace the stock 
-                price array with it.
+            start_month (optional, int): start date for the price samples, 
+                as a number of months backwards. E.g.: 6 means the first 
+                sample is taken 6 months in the past from today's date. 
+                Default value: 6.
+
+            end_month (optional, int): end date for the price samples, 
+                as a number of months backwards. E.g.: 1 means the last 
+                sample is taken 1 month in the past from today's date. 
+                Default value: 0.
         """
         
         # There is a type issue, due to a change in Yahoo Finance API. It needs
@@ -119,21 +125,12 @@ class VariabilityAssesser:
         # Doesn't work due to API issue: https://github.com/pydata/pandas-datareader/issues/962
         # print(f"VariabilityAssesser.read_stock_price: spndr.get_quote_yahoo(symbols)=\n{pndr.get_quote_yahoo(symbols)[['longName', 'exchange', 'fullExchangeName', 'currency', 'quoteType', ]].T}")
 
-        start_date = datetime.today() - relativedelta(months=6)
-        end_date = datetime.today() - relativedelta(days=1)
-        temp = pndr.get_data_yahoo(symbols, start=start_date, end=end_date)
-        # print(self._stock_prices.head(10))
-
-        if (slice_limit > 0):
-            # keep a slice with the first `slice_limit` rows
-            end_index_number = slice_limit-1
-            end_index_name = temp.index[end_index_number]
-            # print(end_index_name)
-            self._stock_prices = temp.loc[:end_index_name].copy()
-        else:   
-            self._stock_prices = temp.copy()
+        start_date = datetime.today() - relativedelta(months=start_month)
+        end_date = datetime.today() - relativedelta(months=end_month)
+        self._stock_prices = pndr.get_data_yahoo(symbols, start=start_date, end=end_date)
+        
         # print(f"VariabilityAssesser.read_stock_price: self._stock_prices=\n{self._stock_prices}")
-        # print(f"VariabilityAssesser.read_stock_price: len(self._stock_prices)=\n{len(self._stock_prices)}")
+        print(f"VariabilityAssesser.read_stock_price: len(self._stock_prices)=\n{len(self._stock_prices)}")
 
         # Prepare the empty variability dataframe
         indices=self._stock_prices.index.tolist()
@@ -142,7 +139,10 @@ class VariabilityAssesser:
 
     def compute_variability(self):
         """
-        Compute the rolling variability and add it to the stock price data.
+        Compute the rolling variabilities.
+
+        Returns:
+            float: the mean over all the rolling variabilities.
         """
 
         self._stock_prices['Rel Change'] = self._stock_prices['Adj Close'].pct_change()
@@ -150,9 +150,12 @@ class VariabilityAssesser:
 
         self._variabilities['Variability'] = self._stock_prices['Rel Change'].rolling(20).std() * np.sqrt(255)
 
-        print(f"mean: {self._variabilities.mean()}")
-        print(f"std: {self._variabilities.std()}")
+        res = self._variabilities['Variability'].mean()
+        print(f"VariabilityAssesser.compute_variability: mean: {res}")
+        print(f"VariabilityAssesser.compute_variability: std: {self._variabilities['Variability'].std()}")
         print(f"VariabilityAssesser.compute_variability: self._variabilities.loc[20:]=\n{self._variabilities[20:]}")
+
+        return res
 
     def plot_variability(self):
         """

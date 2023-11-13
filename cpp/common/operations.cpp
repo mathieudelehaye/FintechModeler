@@ -40,7 +40,7 @@ extern "C" {
     }
 
     /*
-     * Function: compute_variabilities
+     * Function: compute_variability
      * -------------------------------
      * Compute the variability of stock prices provided as an input.
      *
@@ -48,13 +48,13 @@ extern "C" {
      * variabilities: The output array with the computed variabilities.
      * array_length: The input and output array size.
      * 
-     *  Returns: 
-     *      0 if no issue happened. 
+     * Returns: 
+     *  double: the mean over all the rolling variabilities.
      */
-    int compute_variabilities(const double stock_prices[], double variabilities[], int array_length) {
-        // std::cout<<"compute_variabilities: array_length="<<array_length<<std::endl;
+    double compute_variability(const double stock_prices[], double variabilities[], int array_length) {
+        // std::cout<<"compute_variability: array_length="<<array_length<<std::endl;
         // for (int i = 0; i < array_length; i++) {
-        //     std::cout<<"compute_variabilities: stock_prices[i]="<<stock_prices[i]<<std::endl;
+        //     std::cout<<"compute_variability: stock_prices[i]="<<stock_prices[i]<<std::endl;
         // }
         
         const auto calculator = new StatisticsCalculator();
@@ -63,9 +63,11 @@ extern "C" {
         calculator->convertToRelativeChanges();
 
         const int rollingWindowSize = 20;
+        int firstVariabilityIndex = 0;
         for(int i = 0; i < array_length; i++) {
             if (i < rollingWindowSize) {
                 variabilities[i] = 0;
+                firstVariabilityIndex++;
                 continue;
             } 
 
@@ -78,10 +80,15 @@ extern "C" {
 
         delete calculator;
 
-        // for (int i = 0; i < array_length; i++) {
-        //     std::cout<<"compute_variabilities: variabilities[i]="<<variabilities[i]<<std::endl;
-        // }
+        double variabilitiesMean = 0;
 
-        return 0;
+        for (int i = firstVariabilityIndex; i < array_length; i++) {
+            std::cout<<"compute_variability: variabilities["<<i<<"]="<<variabilities[i]<<std::endl;
+            variabilitiesMean += variabilities[i];
+        }
+        variabilitiesMean /= (array_length-firstVariabilityIndex);
+        std::cout<<"operations.compute_variability: mean: "<<variabilitiesMean<<std::endl;
+
+        return variabilitiesMean;
     }
 }

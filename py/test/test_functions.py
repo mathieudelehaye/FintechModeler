@@ -45,53 +45,31 @@ class TestFunctions(unittest.TestCase):
         """
         
         # `stock_price_variability` function. E.g.: 'AV.L' for Aviva LSE, 'AAPL' for Apple NYSE
-        res = f.stock_price_variability('AAPL', [ImplementationMethod.Python, ImplementationMethod.Cpp], hide_plot=True)
+        variabilities = f.stock_price_variability('AAPL', [ImplementationMethod.Python, ImplementationMethod.Cpp], hide_plot=True)
         
         start_date = datetime.today() - relativedelta(months=6)
         end_date = datetime.today() - relativedelta(days=2)
-        variability_sum_lower_limit = 1
-        variability_sum_upper_limit = 1000
+        variability_lower_limit = 0
+        variability_upper_limit = 100
 
-        # Python implementation for the calculation
-        python_res_dict = res[ImplementationMethod.Python]
-        python_res_dict_first_key = next(iter(python_res_dict.keys()))
-        self.assertEqual(python_res_dict_first_key.strftime("%Y-%m-%d %H:%M:%S"), start_date.strftime("%Y-%m-%d 00:00:00"))
-        python_res_dict_last_key = next(reversed(python_res_dict.keys()))
-        self.assertEqual(python_res_dict_last_key.strftime("%Y-%m-%d %H:%M:%S"), end_date.strftime("%Y-%m-%d 00:00:00"))
-        python_res_dict_values = python_res_dict.values()
-        # print([item for item in python_res_dict_values][:50])
-        # Only keep the numerical and non-NaN values
-        filtered_python_res_dict_values = [item for item in python_res_dict_values 
-            if isinstance(item, (int, float)) and not math.isnan(item)]
-        variability_sum = sum(filtered_python_res_dict_values)
-        self.assertTrue(self._check_value_in_range(variability_sum, variability_sum_lower_limit, variability_sum_upper_limit),
-            f"Value {variability_sum} is not in the specified range [{variability_sum_lower_limit}, {variability_sum_upper_limit}]")
-
-        # C++ implementation for the calculation
-        cpp_res_dict = res[ImplementationMethod.Cpp]
-        cpp_res_dict_first_key = next(iter(cpp_res_dict.keys()))
-        self.assertEqual(cpp_res_dict_first_key.strftime("%Y-%m-%d %H:%M:%S"), start_date.strftime("%Y-%m-%d 00:00:00"))
-        cpp_res_dict_last_key = next(reversed(cpp_res_dict.keys()))
-        self.assertEqual(cpp_res_dict_last_key.strftime("%Y-%m-%d %H:%M:%S"), end_date.strftime("%Y-%m-%d 00:00:00"))
-        cpp_res_dict_values = cpp_res_dict.values()
-        # print([item for item in cpp_res_dict_values][:50])
-        # Only keep the numerical and non-NaN values
-        filtered_cpp_res_dict_values = [item for item in cpp_res_dict_values 
-            if isinstance(item, (int, float)) and not math.isnan(item)]
-        variability_sum = sum(filtered_cpp_res_dict_values)
-        self.assertTrue(self._check_value_in_range(variability_sum, variability_sum_lower_limit, variability_sum_upper_limit),
-            f"Value {variability_sum} is not in the specified range [{variability_sum_lower_limit}, {variability_sum_upper_limit}]")
+        python_variabilty=variabilities[ImplementationMethod.Python]
+        self.assertTrue(self._check_value_in_range(python_variabilty, variability_lower_limit, variability_upper_limit),
+            f"Value {python_variabilty} is not in the specified range [{variability_lower_limit}, {variability_upper_limit}]")
+        
+        cpp_variabilty=variabilities[ImplementationMethod.Cpp]
+        self.assertTrue(self._check_value_in_range(cpp_variabilty, variability_lower_limit, variability_upper_limit),
+            f"Value {cpp_variabilty} is not in the specified range [{variability_lower_limit}, {variability_upper_limit}]")
 
         # `bs_call` function
-        stock_price=186
+        stock_price=186.4
         expiration_days=5
         interest_rate=.0525
-        # self.assertEqual(round(f.bs_call(stock_price, 180, expiration_days/365, interest_rate, .190118), 2), 570.50) 
+        variability=python_variabilty
         
         print(f"Strike\tStock\tExp. [d]\tCall")
         strike_prices=[180,182.5,185,187.5,190,192.5]
         for strike_price in strike_prices:
-            call_price=round(f.bs_call(stock_price, strike_price, expiration_days/365, interest_rate, .190118), 2)
+            call_price=round(f.bs_call(stock_price, strike_price, expiration_days/365, interest_rate, variability), 2)
             print(f"{strike_price}\t{stock_price}\t{expiration_days}\t{call_price}")
 
         # `bs_put` function

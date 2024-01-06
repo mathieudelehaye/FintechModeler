@@ -47,8 +47,8 @@ class TestFunctions(unittest.TestCase):
         # `stock_price_variability` function. E.g.: 'AV.L' for Aviva LSE, 'AAPL' for Apple NYSE
         variabilities = f.stock_price_variability('AAPL', [ImplementationMethod.Python, ImplementationMethod.Cpp], hide_plot=True)
         
-        start_date = datetime.today() - relativedelta(months=6)
-        end_date = datetime.today() - relativedelta(days=2)
+        # start_date = datetime.today() - relativedelta(months=6)
+        # end_date = datetime.today() - relativedelta(days=2)
         variability_lower_limit = 0
         variability_upper_limit = 100
 
@@ -61,13 +61,16 @@ class TestFunctions(unittest.TestCase):
             f"Value {cpp_variabilty} is not in the specified range [{variability_lower_limit}, {variability_upper_limit}]")
 
         # `bs_call` function
-        stock_price=186.4
-        expiration_days=5
+        # stock_price=186.4
+        stock_price=188.01
+        # expiration_days=5
+        expiration_days=2
         interest_rate=.0525
         variability=python_variabilty
         
         print(f"Strike\tStock\tExp. [d]\tCall")
-        strike_prices=[180,182.5,185,187.5,190,192.5]
+        # strike_prices=[180,182.5,185,187.5,190,192.5]
+        strike_prices=[182.5,185,187.5,190,192.5,195]
         for strike_price in strike_prices:
             call_price=round(f.bs_call(stock_price, strike_price, expiration_days/365, interest_rate, variability), 2)
             print(f"{strike_price}\t{stock_price}\t{expiration_days}\t{call_price}")

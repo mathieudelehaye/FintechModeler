@@ -1,7 +1,7 @@
 # FintechModeler
 A Python and C++ library for fintech modeling. 
 
-It implements the Black-Scholes model, in order to price call option derivatives, according to the underlying stock price, the strike price and expiration date. 
+It implements the Black-Scholes model, in order to price call option derivatives, according to the underlying stock price, the strike price and the expiration date. 
 
 The stock price variability is assessed using data from the Yahoo Finance API.
 

@@ -5,7 +5,7 @@ It implements the Black-Scholes model, in order to price call option derivatives
 
 The stock price variability is assessed using data from the Yahoo Finance API.
 
-The implementation is made both in Python with pandas and numpy, as well as in C++, in order to compare the runtime performance of those languages for fintech applications.
+The implementation is made both in Python with pandas and numpy, as well as in C++, in order to compare the runtime performance of those programming languages for fintech applications.
 
 This app let me predict with a good accuracy the results from Saxo bank (SaxoTraderGO): https://www.home.saxo/platforms/saxotradergo
 

@@ -1,5 +1,5 @@
 # FintechModeler
-A Python and C++ library for fintech modeling.
+A Python and C++ library for fintech modeling. It implements the Black-Scholes model, in order to price call option derivatives, according to the underlying stock price, the strike price and expiration date. 
 
 ## How-to guide
 

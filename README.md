@@ -5,7 +5,7 @@ It implements the Black-Scholes model, in order to price call option derivatives
 
 The stock price variability is assessed using data from the Yahoo Finance API.
 
-The implementation is made both in Python with pandas and numpy, as well as in C++, in order to compare the runtime performance of those two languages.
+The implementation is made both in Python with pandas and numpy, as well as in C++, in order to compare the runtime performance of those two languages for fintech applications.
 
 ## How-to guide
 

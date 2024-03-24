@@ -19,13 +19,13 @@ clear; g++ -shared -I cpp/include -std=c++17 -o cpp/build/operations.dylib -fPIC
 
 Then, run some unit tests:
 ```
-clear; python3.11 ./py/test/test_functions.py
+clear; python /path/to/project/py/test/test_functions.py
 ```
 
 To manually calculate and plot the variability:
 ```
-python3.11 
->>> import py.functions as f
+python
+>>> import scripts.functions as f
 >>> f.plot_variability('AAPL')
 ```
 

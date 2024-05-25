@@ -29,13 +29,13 @@ from dateutil.relativedelta import relativedelta
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-import yfinance as yf
+import pandas as pnda
+import yfinance as yfin
 
 
 class VariabilityAssesser:
     """
-    A class helping assess the variability of a stock price.
+    A class assessing the variability of a stock price.
 
     Attributes:
         _stock_name (str): The name of the stock for which the
@@ -58,7 +58,7 @@ class VariabilityAssesser:
         self._stock_prices = []
         self._variabilities = []
 
-    def get_stock_prices(self):
+    def stock_prices(self):
         """
         Getter for the stock prices.
 
@@ -67,6 +67,15 @@ class VariabilityAssesser:
             indices are of `datetime` type and the column values are of float type
             (except when noted).
 
+            The following data are available:
+            - Date (index): the date of the stock metrics.
+            - Open: the opening price.
+            - High: the highest price.
+            - Low: the lowest price.
+            - Close: the closing price.
+            - Adj Close: the closing price adjusted with the splits and dividends.
+            - Volume: the stock trading volume.
+
             Date (index)   Open      High       Low     Close  Adj Close      Volume [int]
             ------------------------------------------------------------------------------
             2010-01-04  7.622500  7.660714  7.585000  7.643214   6.487534   493729600
@@ -74,22 +83,22 @@ class VariabilityAssesser:
         """
         return self._stock_prices
 
-    def get_variability_dict(self):
+    def variability_dict(self):
         """
-        Getter for the stock price variabilities as an array.
+        Getter for the stock price variabilities as dict.
 
         Returns:
             dict:
                 - The key is of `datetime` type and represents the variability date.
                 - The value is of float type and represents the variability.
         """
-        # print(f"VariabilityAssesser.get_variability_dict: self._variabilities=\n{self._variabilities}")
+        # print(f"VariabilityAssesser.variability_dict: self._variabilities=\n{self._variabilities}")
 
         return dict(zip(self._variabilities.index, self._variabilities["Variability"]))
 
     def import_variability(self, values):
         """
-        Setter for the stock price variabilities.
+        Import the stock price variabilities.
 
         Args:
             values (list): a list with the rolling variabilities.
@@ -108,7 +117,7 @@ class VariabilityAssesser:
     def read_stock_price(self, start_month=6, end_month=0):
         """
         Read the underlying stock prices from the Yahoo Finance
-        data of the `pandas-datareader` library.
+        service.
         Those prices will be used to compute the variability.
 
         Args:
@@ -125,14 +134,12 @@ class VariabilityAssesser:
 
         start_date = datetime.today() - relativedelta(months=start_month)
         end_date = datetime.today() - relativedelta(months=end_month)
-        end_date = datetime.today()
 
-        ticker = yf.Ticker(self._stock_name)
-        self._stock_prices = ticker.history(start=start_date, end=end_date)
+        self._stock_prices = yfin.download(self._stock_name, start=start_date, end=end_date)
 
         # Prepare the empty variability dataframe
         indices = self._stock_prices.index.tolist()
-        self._variabilities = pd.DataFrame(
+        self._variabilities = pnda.DataFrame(
             [0] * len(indices), columns=["Variability"], index=indices
         )
         # print(f"VariabilityAssesser.read_stock_price: self._variabilities=\n{self._variabilities}")

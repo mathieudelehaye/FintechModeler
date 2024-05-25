@@ -175,7 +175,7 @@ def cpp_stock_price_variability(assesser):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     operations_lib = ctypes.CDLL(f"{current_dir}/../../cpp/build/operations.dylib")
 
-    input_array = assesser.get_stock_prices()["Adj Close"].to_list()
+    input_array = assesser.stock_prices()["Adj Close"].to_list()
     # print(f"X={input_array}")
 
     data_number = len(input_array)

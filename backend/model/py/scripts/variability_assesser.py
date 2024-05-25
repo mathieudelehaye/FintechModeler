@@ -26,7 +26,6 @@
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from pandas_datareader import data as pndr
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -124,25 +123,12 @@ class VariabilityAssesser:
                 Default value: 0.
         """
 
-        # There is a type issue, due to a change in Yahoo Finance API. It needs
-        # a workaround: https://stackoverflow.com/questions/74832296
-        yf.pdr_override()
-
-        symbols = [self._stock_name]
-
-        # Doesn't work due to API issue: https://github.com/pydata/pandas-datareader/issues/962
-        # print(f"VariabilityAssesser.read_stock_price: spndr.get_quote_yahoo(symbols)=\n{pndr.get_quote_yahoo(symbols)[['longName', 'exchange', 'fullExchangeName', 'currency', 'quoteType', ]].T}")
-
         start_date = datetime.today() - relativedelta(months=start_month)
         end_date = datetime.today() - relativedelta(months=end_month)
-        self._stock_prices = pndr.get_data_yahoo(
-            symbols, start=start_date, end=end_date
-        )
+        end_date = datetime.today()
 
-        # print(f"VariabilityAssesser.read_stock_price: self._stock_prices=\n{self._stock_prices}")
-        print(
-            f"VariabilityAssesser.read_stock_price: len(self._stock_prices)=\n{len(self._stock_prices)}"
-        )
+        ticker = yf.Ticker(self._stock_name)
+        self._stock_prices = ticker.history(start=start_date, end=end_date)
 
         # Prepare the empty variability dataframe
         indices = self._stock_prices.index.tolist()
@@ -189,7 +175,7 @@ class VariabilityAssesser:
 
         self._variabilities.plot()
 
-        plt.ylabel("$\sigma$")
+        plt.ylabel("$\\sigma$")
         plt.title("AAPL Stock Price Historical Volatility")
 
         # Connect the event handler to the click event

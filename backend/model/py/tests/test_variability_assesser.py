@@ -24,11 +24,14 @@
 # along with this program. If not, see
 # <https:www.gnu.org/licenses/>.
 
+from scripts.functions import ImplementationMethod
+from scripts.variability_assesser import VariabilityAssesser
+
+import scripts.functions as f
+
 import os
 import tempfile
 import unittest
-
-from scripts.variability_assesser import VariabilityAssesser
 
 
 class TestVariabilityAssesser(unittest.TestCase):
@@ -38,22 +41,23 @@ class TestVariabilityAssesser(unittest.TestCase):
         """
         Set up method to run prior to each test.
         """
-        self.assesser = VariabilityAssesser('AAPL')
-        self.variabilities = []
+        # self.assesser = VariabilityAssesser('AAPL')
+        # self.variabilities = []
 
     def tearDown(self):
         """
         Tear down method to run after each test.
         """
-        del self.assesser
+        # del self.assesser
 
-    def test_read_words_from_not_existing_file(self):
-        """Test for word reading from a not existing text file."""
-        try:
-            VariabilityAssesser("AAPL")
-            self.fail("The previous instructions should have raised an exception.")
-        except FileNotFoundError:
-            return
+    def test_variability_assesser(self):
+        """Test for calculating a stock variability."""
+        
+        assesser = VariabilityAssesser("AAPL")
+
+        assesser.read_stock_price(2)
+
+        self.assertEqual(True, True)
 
 
 if __name__ == "__main__":

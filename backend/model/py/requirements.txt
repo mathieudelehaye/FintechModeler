@@ -1,0 +1,6 @@
+python-dateutil
+pandas_datareader
+setuptools
+matplotlib
+yfinance
+scipy

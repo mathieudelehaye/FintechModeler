@@ -1,6 +1,7 @@
-python-dateutil
-pandas_datareader
-setuptools
+logging
 matplotlib
-yfinance
+pandas_datareader
+python-dateutil
 scipy
+setuptools
+yfinance

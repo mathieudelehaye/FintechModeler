@@ -27,6 +27,7 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+import logging
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pnda
@@ -92,7 +93,7 @@ class VariabilityAssesser:
                 - The key is of `datetime` type and represents the variability date.
                 - The value is of float type and represents the variability.
         """
-        # print(f"VariabilityAssesser.variability_dict: self._variabilities=\n{self._variabilities}")
+        logging.debug(f"VariabilityAssesser.variability_dict: self._variabilities=\n{self._variabilities}")
 
         return dict(zip(self._variabilities.index, self._variabilities["Variability"]))
 
@@ -107,10 +108,15 @@ class VariabilityAssesser:
             bool: True if the values were correctly written.
         """
 
+        # Resize the dataframe to its N first elements.
+        # TODO: change the interface, as the imported `values` may not match the existing 
+        # dataframe index keys.
+        self._variabilities.head(len(values))
+
         self._variabilities["Variability"] = values[
             : len(self._variabilities["Variability"])
         ]
-        # print(f"VariabilityAssesser.import_variability: self._variabilities=\n{self._variabilities}")
+        logging.debug(f"VariabilityAssesser.import_variability: self._variabilities=\n{self._variabilities}")
 
         return True
 
@@ -142,7 +148,7 @@ class VariabilityAssesser:
         self._variabilities = pnda.DataFrame(
             [0] * len(indices), columns=["Variability"], index=indices
         )
-        # print(f"VariabilityAssesser.read_stock_price: self._variabilities=\n{self._variabilities}")
+        logging.debug(f"VariabilityAssesser.read_stock_price: self._variabilities=\n{self._variabilities}")
 
     def compute_variability(self):
         """
@@ -153,7 +159,7 @@ class VariabilityAssesser:
         """
 
         self._stock_prices["Rel Change"] = self._stock_prices["Adj Close"].pct_change()
-        print(
+        logging.debug(
             f"VariabilityAssesser.compute_variability: self._stock_prices=\n{self._stock_prices}"
         )
 
@@ -162,12 +168,12 @@ class VariabilityAssesser:
         ).std() * np.sqrt(255)
 
         res = self._variabilities["Variability"].mean()
-        print(f"VariabilityAssesser.compute_variability: mean: {res}")
-        print(
+        logging.debug(f"VariabilityAssesser.compute_variability: mean: {res}")
+        logging.debug(
             f"VariabilityAssesser.compute_variability: std: {self._variabilities['Variability'].std()}"
         )
-        print(
-            f"VariabilityAssesser.compute_variability: self._variabilities.loc[20:]=\n{self._variabilities[20:]}"
+        logging.debug(
+            f"VariabilityAssesser.compute_variability: slices: {self._variabilities[20:]}"
         )
 
         return res
@@ -176,7 +182,7 @@ class VariabilityAssesser:
         """
         Plot the rolling variability.
         """
-        print(
+        logging.debug(
             f"VariabilityAssesser.plot_variability: self._variabilities=\n{self._variabilities}"
         )
 

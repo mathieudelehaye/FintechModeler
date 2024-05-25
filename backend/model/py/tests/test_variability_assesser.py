@@ -5,7 +5,7 @@
 #
 # FintechModeler: A Python and C++ library for fintech modeling.
 #
-# Copyright © 2023 Mathieu Delehaye. All rights reserved.
+# Copyright © 2024 Mathieu Delehaye. All rights reserved.
 #
 #
 # This program is free software: you can redistribute it and/or modify
@@ -30,6 +30,7 @@ from scripts.variability_assesser import VariabilityAssesser
 import scripts.functions as f
 
 import os
+import random
 import tempfile
 import unittest
 
@@ -37,27 +38,45 @@ import unittest
 class TestVariabilityAssesser(unittest.TestCase):
     """Test case for the VariabilityAssesser class."""
 
-    def setUp(self):
-        """
-        Set up method to run prior to each test.
-        """
-        # self.assesser = VariabilityAssesser('AAPL')
-        # self.variabilities = []
-
-    def tearDown(self):
-        """
-        Tear down method to run after each test.
-        """
-        # del self.assesser
-
-    def test_variability_assesser(self):
-        """Test for calculating a stock variability."""
+    def test_read_stock_price(self):
+        """Test for reading the stock prices from Yahoo Finance."""
         
         assesser = VariabilityAssesser("AAPL")
+        assesser.read_stock_price(1)
+        self.assertGreater(len(assesser.stock_prices()), 0)
 
-        assesser.read_stock_price(2)
+        stock_price_indices = assesser.stock_prices().index.tolist()
+        self.assertGreater(len(stock_price_indices), 0)
 
-        self.assertEqual(True, True)
+        adjusted_closing_stock_prices = assesser.stock_prices()["Adj Close"].tolist()
+        self.assertGreater(adjusted_closing_stock_prices[-1], 0)
+
+    def test_compute_variability(self):
+        """Test for calculating the variability for stock prices."""
+        
+        assesser = VariabilityAssesser("MSFT")
+        assesser.read_stock_price(1)
+        self.assertGreater(len(assesser.stock_prices()), 0)
+
+        self.assertGreater(assesser.compute_variability(), 0)
+
+        variabilities = assesser.variability_dict()
+        self.assertEqual(len(variabilities), len(assesser.stock_prices()))
+        self.assertGreater(variabilities[list(variabilities.keys())[-1]], 0)
+    
+    def test_compute_variability(self):
+        """Test for calculating the variability for stock prices."""
+        
+        assesser = VariabilityAssesser("AMZN")
+        assesser.read_stock_price(1)
+        self.assertGreater(len(assesser.stock_prices()), 0)
+
+        variabilities_to_import = [random.random() for _ in range(0, len(assesser.stock_prices()))]
+        assesser.import_variability(variabilities_to_import)
+
+        imported_variabilities = assesser.variability_dict()
+        self.assertEqual(len(imported_variabilities), len(variabilities_to_import))
+        self.assertEqual(sum(imported_variabilities.values()), sum(variabilities_to_import))
 
 
 if __name__ == "__main__":

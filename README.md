@@ -26,15 +26,23 @@ cd <project root>
 clear; g++ -shared -I cpp/include -std=c++17 -o cpp/build/operations.dylib -fPIC cpp/common/operations.cpp cpp/common/statistics_calculator.cpp 
 ```
 
-In order to fetch the variability from the REST API:
+Start the backend:
 ```
 python run.py
+```
 
-# Terminal 2
+Fetch the variability from the backend REST API:
+```
 curl 'http://localhost:5000/variability?start_month=6&end_month=2&stock_name=AAPL'
 ```
 
-To manually calculate and plot the variability:
+Start the frontend:
+```
+cd frontend
+npm start
+```
+
+Manually calculate and plot the variability:
 ```
 python
 >>> import scripts.functions as f

@@ -1,25 +1,38 @@
 # FintechModeler
+
+## Summary 
+
 A Python and C++ application for fintech modelling. 
 
 It implements the Black-Scholes model, in order to price call option derivatives, according to the underlying stock price, the strike price and the expiration date. 
 
-The stock price variability is assessed using data from the Yahoo Finance API.
-
-The implementation is made both in Python with pandas and numpy, as well as in C++, in order to compare the runtime performance of those programming languages for fintech applications.
+The stock price variability can be fetched with a REST API implemented with Flask. It is assessed with data from the Yahoo Finance API. 
 
 This app let me predict with accuracy the option results from Saxo bank (SaxoTraderGO): https://www.home.saxo/platforms/saxotradergo
 
+## Details
+
+The implementation is made both in Python with pandas and NumPy, as well as in C++, in order to compare the runtime performance of those programming languages for fintech applications.
+
 ## How-to guide
 
-First, build the C++ dynamic library:
+First, run some unit tests:
+```
+clear; python -m unittest -v tests.test_variability_assesser
+```
+
+Then build the C++ dynamic library:
 ```
 cd <project root>
 clear; g++ -shared -I cpp/include -std=c++17 -o cpp/build/operations.dylib -fPIC cpp/common/operations.cpp cpp/common/statistics_calculator.cpp 
 ```
 
-Then, run some unit tests:
+In order to fetch the variability from the REST API:
 ```
-clear; python /path/to/project/py/test/test_functions.py
+python run.py
+
+# Terminal 2
+curl 'http://localhost:5000/variability?start_month=6&end_month=2&stock_name=AAPL'
 ```
 
 To manually calculate and plot the variability:

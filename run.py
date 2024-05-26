@@ -35,7 +35,7 @@ def variability():
         'start_month': start_month,
         'end_month': end_month,
         'stock_name': stock_name,
-        'averageVariability': average_variability
+        'average_variability': average_variability
     }
 
     return jsonify(data)

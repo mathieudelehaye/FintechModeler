@@ -9,6 +9,10 @@ A Python and C++ application for fintech modelling:
 
 This app let me predict with accuracy the option results from Saxo bank (SaxoTraderGO): https://www.home.saxo/platforms/saxotradergo
 
+<p float="left">
+  <img src="screenshots/screenshot01.png" height ="502" width="590" hspace="10" />
+</p>
+
 ## Details
 
 The implementation is made both in Python with pandas and NumPy, as well as in C++, in order to compare the runtime performance of those programming languages for fintech applications.
@@ -49,6 +53,3 @@ python
 >>> f.plot_variability('AAPL')
 ```
 
-<p float="left">
-  <img src="screenshots/screenshot01.png" height ="502" width="590" hspace="10" />
-</p>

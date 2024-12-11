@@ -46,7 +46,7 @@ const Variability: React.FC = () => {
   
     return (
       <div>
-        <h1>Variability Data</h1>
+        <h1>Variability Data 2</h1>
         {data && (
           <div>
             <p>Quote: {data.quote}</p>

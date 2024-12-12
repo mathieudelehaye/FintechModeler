@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * statistics_calculator.h
  *
@@ -5,7 +7,7 @@
  *
  * FintechModeler: A Python and C++ library for fintech modeling.
  *
- * Copyright Â© 2023 Mathieu Delehaye. All rights reserved.
+ * Copyright © 2023 Mathieu Delehaye. All rights reserved.
  *
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
@@ -22,9 +24,9 @@
 
 #include <vector>
 
-/**
- * Class for calculating statistics on a stochastic variable.
- */
+ /**
+  * Class for calculating statistics on a stochastic variable.
+  */
 class StatisticsCalculator {
 public:
     /**
@@ -38,7 +40,7 @@ public:
      * @param value The data point to be added.
      */
     void addData(double value);
-    
+
     /**
      * Clear the dataset.
      */
@@ -59,11 +61,11 @@ public:
 
     /**
      * Set the rolling window subset from the complete dataset.
-     * 
+     *
      * DO NOT forget to call this method, otherwise the calculation
      * methods on a rolling window will return 0.
      *
-     * @param windowStartIndex The index in the complete dataset 
+     * @param windowStartIndex The index in the complete dataset
      *  where the window starts.
      * @param windowLength The length of the window.
      */
@@ -75,7 +77,7 @@ public:
     /**
      * Calculate the mean (average) of the dataset
      * from a rolling window.
-     * 
+     *
      * @return The mean value on the window.
      */
     double calculateRollingMean() const;
@@ -88,6 +90,8 @@ public:
      */
     double calculateRollingStandardDeviation() const;
 
+    static void hello();
+
 private:
     /**
      * @brief The complete set of data.
@@ -96,10 +100,10 @@ private:
      */
     std::vector<double> completeData;
 
-     /**
-     * @brief The rolling window data.
-     *
-     * The subset of data from the current rolling window.
-     */
+    /**
+    * @brief The rolling window data.
+    *
+    * The subset of data from the current rolling window.
+    */
     std::vector<double> dataWindow;
 };

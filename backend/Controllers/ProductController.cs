@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Mvc;
 using RESTWebService.Models;
+using System.Diagnostics;
 
 namespace RESTWebService.Controllers
 {
@@ -7,6 +9,14 @@ namespace RESTWebService.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
+        // Import the Add function from the C++ DLL
+        [DllImport("C:\\Users\\mathi\\source\\c++\\FintechModeler\\backend\\bin\\Debug\\dependencies\\fintech_model.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Add(int a, int b);
+
+        // Import the GetMessage function from the C++ DLL
+        [DllImport("C:\\Users\\mathi\\source\\c++\\FintechModeler\\backend\\bin\\Debug\\dependencies\\fintech_model.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr GetMessage();
+
         private static List<Product> products = new List<Product>
         {
             new Product { Id = 1, Name = "Laptop", Price = 1000 },
@@ -17,6 +27,15 @@ namespace RESTWebService.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Product>> Get()
         {
+            // Call the Add function
+            int result = Add(5, 10);
+            Debug.WriteLine($"mdl The sum is: {result}");
+
+            // Call the GetMessage function
+            IntPtr ptr = GetMessage();
+            string message = Marshal.PtrToStringAnsi(ptr);
+            Debug.WriteLine($"mdl Message from C++: {message}");
+
             return Ok(products);
         }
 

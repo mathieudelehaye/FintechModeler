@@ -24,7 +24,7 @@
 #include <iostream>
 #include <vector>
 
-#include <statistics_calculator.h>
+#include "statistics_calculator.h"
 
 StatisticsCalculator::StatisticsCalculator() {}
 
@@ -132,4 +132,8 @@ double StatisticsCalculator::calculateRollingStandardDeviation() const {
     const double sigma = std::sqrt(variance);
 
     return sigma;
+}
+
+static void hello() {
+    std::cout << "You have reached my secret function!" << std::endl;
 }

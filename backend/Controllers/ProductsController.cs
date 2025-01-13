@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApiExample.Models;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace WebApiExample.Controllers
 {
@@ -9,6 +9,18 @@ namespace WebApiExample.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
+        // Import the Add function from the C++ DLL
+        [DllImport("..\\dll\\x64\\Debug\\fintech_model.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Add(int a, int b);
+
+        // Import the GetMessage function from the C++ DLL
+        [DllImport("..\\dll\\x64\\Debug\\fintech_model.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr GetMessage();
+
+        // Import the PriceEuropeanCallOption function from the C++ DLL
+        [DllImport("..\\dll\\x64\\Debug\\fintech_model.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double PriceEuropeanCallOption();
+        
         private static List<Product> products = new List<Product>
         {
             new Product { Id = 1, Name = "Laptop", Price = 1000 },
@@ -19,6 +31,19 @@ namespace WebApiExample.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Product>> Get()
         {
+            //// Call the Add function
+            //int result = Add(5, 10);
+            //Debug.WriteLine($"mdl The sum is: {result}");
+
+            //// Call the GetMessage function
+            //IntPtr ptr = GetMessage();
+            //string message = Marshal.PtrToStringAnsi(ptr);
+            //Debug.WriteLine($"mdl Message from C++: {message}");
+
+            // Call the PriceEuropeanCallOption function
+            double optionPrice = PriceEuropeanCallOption();
+            Debug.WriteLine($"mdl Calculated option price: {optionPrice}");
+
             return Ok(products);
         }
 

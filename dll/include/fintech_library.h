@@ -8,6 +8,7 @@
 #endif
 
 extern "C" MYLIBRARY_API int Add(int a, int b);
-extern "C" MYLIBRARY_API const char* GetMessage();
+extern "C" MYLIBRARY_API const char* GetMessageFromLib();
+extern "C" MYLIBRARY_API double PriceEuropeanCallOption();
 
 #endif // FINTECH_LIBRARY_H

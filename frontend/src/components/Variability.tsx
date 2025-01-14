@@ -1,30 +1,26 @@
 import React, { useEffect, useState } from 'react';
 
-// interface VariabilityData {
-//     start_month: number;
-//     end_month: number;
-//     stock_name: string;
-//     average_variability: string;
-// }
-  
-interface VariabilityData {
-    quote: string;
+interface OptionPriceData {
+    id: string;
+    name: string;
+    price: number;
 }
   
 const Variability: React.FC = () => {
-    const [data, setData] = useState<VariabilityData | null>(null);
+    const [data, setData] = useState<OptionPriceData[] | null>(null); // Expecting an array
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
   
     useEffect(() => {
       const fetchData = async () => {
         try {
-        //   const response = await fetch('http://127.0.0.1:5000/variability?start_month=6&end_month=2&stock_name=AAPL');
-          const response = await fetch('https://api.kanye.rest');
+          const response = await fetch('https://localhost:7200/api/Products');          
           if (!response.ok) {
-            throw new Error(`Error: ${response.statusText}`);
+            throw new Error(`Error after fetch: ${response.statusText}`);
           }
-          const result: VariabilityData = await response.json();
+
+          const result: OptionPriceData[] = await response.json(); // Expecting an array
+          console.log('Fetched data:', result);
           setData(result);
         } catch (err) {
           setError(err.message);
@@ -46,13 +42,12 @@ const Variability: React.FC = () => {
   
     return (
       <div>
-        <h1>Variability Data 2</h1>
         {data && (
           <div>
-            <p>Quote: {data.quote}</p>
-            {/* <p>Start Month: {data.start_month}</p>
-            <p>End Month: {data.end_month}</p>
-            <p>Stock Name: {data.stock_name}</p> */}
+            <h1>{data[0].name} call option</h1>
+            <div>
+              <p>Price: {data[0].price}</p>
+            </div>
           </div>
         )}
       </div>

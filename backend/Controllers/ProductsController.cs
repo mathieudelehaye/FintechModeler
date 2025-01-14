@@ -2,6 +2,7 @@
 using WebApiExample.Models;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using backend.Models;
 
 namespace WebApiExample.Controllers
 {
@@ -12,7 +13,12 @@ namespace WebApiExample.Controllers
         // Import the PriceEuropeanCallOption function from the C++ DLL
         [DllImport("..\\dll\\x64\\Debug\\fintech_model.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern double PriceEuropeanCallOption();
-        
+
+        private static List<CallOptionPrice> optionPrices = new List<CallOptionPrice>
+        {
+            new CallOptionPrice { Id = 1, Name = "Aapl", Price = 0 }
+        };
+
         private static List<Product> products = new List<Product>
         {
             new Product { Id = 1, Name = "Laptop", Price = 1000 },
@@ -27,7 +33,9 @@ namespace WebApiExample.Controllers
             double optionPrice = PriceEuropeanCallOption();
             Debug.WriteLine($"mdl Calculated option price: {optionPrice}");
 
-            return Ok(products);
+            optionPrices[0].Price = (decimal)optionPrice;
+
+            return Ok(optionPrices);
         }
 
         // GET: api/products/1

@@ -16,6 +16,10 @@ static unsigned long long binomial_coef(unsigned int N, unsigned int r) {
 }
 
 static double int_power(double base, int exponent) {
+    if (exponent == 0) {
+        return 1;
+    }
+
     double result = base;
     for (int i = 0; i < exponent - 1; ++i) {
         result *= base;
@@ -64,14 +68,17 @@ static double calculateCRRCallOptionInitialPrice(
 
     for (int i = start_period; i <= period_number; ++i) {
         const unsigned long long bc = binomial_coef(period_number, i);
-        const double up_move_rn_proba_mul_factor = int_power(up_move_rn_proba, i);
-        const double down_move_rn_proba_mul_factor = int_power(down_move_rn_proba, period_number - i);
+        const double up_move_proba_mul_factor = int_power(up_move_rn_proba, i);
+        const double down_move_proba_mul_factor = int_power(down_move_rn_proba, period_number - i);
+        const double payoff_proba = bc * up_move_proba_mul_factor * down_move_proba_mul_factor;
 
-        const double up_mul_factor = int_power(up_move_coef, i);
-        const double down_mul_factor = int_power(down_move_coef, period_number - i);
+        const double up_move_price_mul_factor = int_power(up_move_coef, i);
+        const double down_move_price_mul_factor = int_power(down_move_coef, period_number - i);
+        const double expiry_share_price = initial_share_price * up_move_price_mul_factor * down_move_price_mul_factor;
 
-        option_price += bc * up_move_rn_proba_mul_factor * down_move_rn_proba_mul_factor * \
-            (initial_share_price * up_mul_factor * down_mul_factor - strike_price);
+        const double payoff_value = expiry_share_price - strike_price;
+
+        option_price += payoff_proba * payoff_value;
     }
 
     const double discountFactor = 1 / int_power(1 + discrete_rf_rate, period_number);
@@ -83,8 +90,8 @@ static double calculateCRRCallOptionInitialPrice(
 
 double PriceEuropeanCallOption() {
     const double volatility = 0.30;
-    const double continuous_rf_rate = 0.05;
-    const double expiry_time = static_cast<double>(1) / 12;
+    const double continuous_rf_rate = 0.02;
+    const double expiry_time = 2;
     const int period_number = 8;    
     const double initial_share_price = 100;
     const double strike_price = 105;

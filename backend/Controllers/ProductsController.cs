@@ -12,7 +12,14 @@ namespace WebApiExample.Controllers
     {
         // Import the PriceEuropeanCallOption function from the C++ DLL
         [DllImport("..\\dll\\x64\\Debug\\fintech_model.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern double PriceEuropeanCallOption();
+        public static extern double PriceEuropeanCallOption(
+            double expiry_time,
+            int period_number,
+            double volatility,
+            double continuous_rf_rate,
+            double initial_share_price,
+            double strike_price
+        );
 
         private static List<CallOptionPrice> optionPrices = new List<CallOptionPrice>
         {
@@ -30,7 +37,15 @@ namespace WebApiExample.Controllers
         public ActionResult<IEnumerable<Product>> Get()
         {
             // Call the PriceEuropeanCallOption function
-            double optionPrice = PriceEuropeanCallOption();
+            double optionPrice = PriceEuropeanCallOption(
+                2,
+                8,
+                0.3,
+                0.02,
+                100,
+                105
+            );
+            
             Debug.WriteLine($"mdl Calculated option price: {optionPrice}");
 
             optionPrices[0].Price = (decimal)optionPrice;

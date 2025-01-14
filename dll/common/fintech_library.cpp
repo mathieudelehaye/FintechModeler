@@ -88,13 +88,13 @@ static double calculateCRRCallOptionInitialPrice(
     return option_price;
 }
 
-double PriceEuropeanCallOption() {
-    const double volatility = 0.30;
-    const double continuous_rf_rate = 0.02;
-    const double expiry_time = 2;
-    const int period_number = 8;    
-    const double initial_share_price = 100;
-    const double strike_price = 105;
+double PriceEuropeanCallOption(
+    double expiry_time = 2,
+    int period_number = 8,
+    double volatility = 0.30,
+    double continuous_rf_rate = 0.02,
+    double initial_share_price = 100,
+    double strike_price = 105) {
 
     const double period_time = expiry_time / period_number;
     const double discrete_rf_rate = std::exp(continuous_rf_rate * period_time) - 1;

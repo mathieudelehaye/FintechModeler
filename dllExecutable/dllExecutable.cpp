@@ -19,8 +19,23 @@ int main() {
     OutputDebugString(L"Console window hidden.\n");
 
     std::ostringstream oss;
-    //oss << "The message is: " << GetMessageFromLib() << "\n";
-    oss << "The message is: " << PriceEuropeanCallOption() << "\n";    
+
+    const double expiry_time = 2;
+    const int period_number = 8;
+    const double volatility = 0.30;
+    const double continuous_rf_rate = 0.02;
+    const double initial_share_price = 100;
+    const double strike_price = 105;
+
+    const double calculatedPrice = PriceEuropeanCallOption(
+        expiry_time,
+        period_number,
+        volatility,
+        continuous_rf_rate,
+        initial_share_price,
+        strike_price);
+
+    oss << "The calculated price is: " << calculatedPrice << "\n";
     logToVSOutput(oss.str());
 }
 

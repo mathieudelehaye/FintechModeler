@@ -7,6 +7,12 @@
 #define MYLIBRARY_API __declspec(dllimport)
 #endif
 
-extern "C" MYLIBRARY_API double PriceEuropeanCallOption();
+extern "C" MYLIBRARY_API double PriceEuropeanCallOption(
+    double expiry_time,
+    int period_number,
+    double volatility,
+    double continuous_rf_rate,
+    double initial_share_price,
+    double strike_price);
 
 #endif // FINTECH_LIBRARY_H

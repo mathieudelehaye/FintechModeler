@@ -1,127 +1,23 @@
-#include "fintech_library.h"
+#include <fintech_library.h>
 
-#include <cmath>
-
-static unsigned long long factorial(unsigned int n) {
-    unsigned long long result = 1;
-    for (unsigned int i = n; i > 0; --i) {
-        result *= i;
-    }
-    return result;
-}
-
-static unsigned long long binomial_coef(unsigned int N, unsigned int r) {
-    const unsigned long long result = factorial(N) / (factorial(r) * factorial(N-r));
-    return result;
-}
-
-static double int_power(double base, int exponent) {
-    if (exponent == 0) {
-        return 1;
-    }
-
-    double result = base;
-    for (int i = 0; i < exponent - 1; ++i) {
-        result *= base;
-    }
-    return result;
-}
-
-// TODO: refactor arguments into a struct
-static unsigned int findCRRStartIndex(
-    double initial_price, 
-    double strike_price, 
-    int period_number, 
-    double up_move_coef, 
-    double down_move_coef) {
-
-    double expiry_price = 0;
-
-    unsigned int i = 3;
-    for (i = 0; i < period_number; ++i) {
-        const double up_mul_factor = int_power(up_move_coef, i);
-        const double down_mul_factor = int_power(down_move_coef, period_number - i);
-
-        expiry_price = initial_price * up_mul_factor * down_mul_factor;
-
-        if (expiry_price > strike_price) {
-            break;
-        }
-    }
-
-    return i; 
-}
-
-// TODO: refactor arguments into a struct
-static double calculateCRRCallOptionInitialPrice(
-    double initial_share_price,
-    double strike_price,
-    int period_number,
-    int start_period,
-    double up_move_coef,
-    double down_move_coef,
-    double up_move_rn_proba,
-    double down_move_rn_proba,
-    double discrete_rf_rate) {
-
-    double option_price = 0;
-
-    for (int i = start_period; i <= period_number; ++i) {
-        const unsigned long long bc = binomial_coef(period_number, i);
-        const double up_move_proba_mul_factor = int_power(up_move_rn_proba, i);
-        const double down_move_proba_mul_factor = int_power(down_move_rn_proba, period_number - i);
-        const double payoff_proba = bc * up_move_proba_mul_factor * down_move_proba_mul_factor;
-
-        const double up_move_price_mul_factor = int_power(up_move_coef, i);
-        const double down_move_price_mul_factor = int_power(down_move_coef, period_number - i);
-        const double expiry_share_price = initial_share_price * up_move_price_mul_factor * down_move_price_mul_factor;
-
-        const double payoff_value = expiry_share_price - strike_price;
-
-        option_price += payoff_proba * payoff_value;
-    }
-
-    const double discountFactor = 1 / int_power(1 + discrete_rf_rate, period_number);
-
-    option_price *= discountFactor;
-
-    return option_price;
-}
+#include <EuropeanCallOption.h>
 
 double PriceEuropeanCallOption(
-    double expiry_time = 2,
-    int period_number = 8,
-    double volatility = 0.30,
-    double continuous_rf_rate = 0.02,
-    double initial_share_price = 100,
-    double strike_price = 105) {
+    double expiry_time,
+    int period_number,
+    double volatility,
+    double continuous_rf_rate,
+    double initial_share_price,
+    double strike_price) {
 
-    const double period_time = expiry_time / period_number;
-    const double discrete_rf_rate = std::exp(continuous_rf_rate * period_time) - 1;
-    const double up_move_mul_coef = std::exp(volatility * std::sqrt(period_time));
-    const double down_move_mul_coef = std::exp(- volatility * std::sqrt(period_time));
+    EuropeanCallOption::PricingModelParameters parameters{};
+    parameters.expiry_time = expiry_time;
+    parameters.period_number = period_number;
+    parameters.volatility = volatility;
+    parameters.continuous_rf_rate = continuous_rf_rate;
+    parameters.initial_share_price = initial_share_price;
+    parameters.strike_price = strike_price;
 
-    const double up_move_rn_proba = (1 + discrete_rf_rate - down_move_mul_coef) / (up_move_mul_coef - down_move_mul_coef);
-    const double down_move_rn_proba = 1 - up_move_rn_proba;
-
-    const int cRRStartIndex = findCRRStartIndex(
-        initial_share_price,
-        strike_price,
-        period_number,
-        up_move_mul_coef,
-        down_move_mul_coef);
-
-    const double callOptionPrice = calculateCRRCallOptionInitialPrice(
-        initial_share_price,
-        strike_price,
-        period_number,
-        cRRStartIndex,
-        up_move_mul_coef,
-        down_move_mul_coef,
-        up_move_rn_proba,
-        down_move_rn_proba,
-        discrete_rf_rate
-    );
-
-    return callOptionPrice;
+    EuropeanCallOption option(parameters); 
+    return option.calculatePrice();
 }

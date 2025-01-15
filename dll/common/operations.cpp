@@ -5,7 +5,7 @@
  *
  * FintechModeler: A Python and C++ library for fintech modeling.
  *
- * Copyright © 2023 Mathieu Delehaye. All rights reserved.
+ * Copyright Â© 2023 Mathieu Delehaye. All rights reserved.
  *
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
@@ -22,8 +22,7 @@
 
 #include <cmath>
 #include <iostream>
-
-#include "statistics_calculator.h"
+#include <statistics_calculator.h>
 
 extern "C" {
     /*
@@ -48,8 +47,8 @@ extern "C" {
      * stock_prices: The input array with the stock prices.
      * variabilities: The output array with the computed variabilities.
      * array_length: The input and output array size.
-     *
-     * Returns:
+     * 
+     * Returns: 
      *  double: the mean over all the rolling variabilities.
      */
     double compute_variability(const double stock_prices[], double variabilities[], int array_length) {
@@ -57,7 +56,7 @@ extern "C" {
         // for (int i = 0; i < array_length; i++) {
         //     std::cout<<"compute_variability: stock_prices[i]="<<stock_prices[i]<<std::endl;
         // }
-
+        
         const auto calculator = new StatisticsCalculator();
 
         calculator->setDataFromArray(stock_prices, array_length);
@@ -65,12 +64,12 @@ extern "C" {
 
         const int rollingWindowSize = 20;
         int firstVariabilityIndex = 0;
-        for (int i = 0; i < array_length; i++) {
+        for(int i = 0; i < array_length; i++) {
             if (i < rollingWindowSize) {
                 variabilities[i] = 0;
                 firstVariabilityIndex++;
                 continue;
-            }
+            } 
 
             calculator->setRollingWindow(i - rollingWindowSize, rollingWindowSize);
 
@@ -84,11 +83,11 @@ extern "C" {
         double variabilitiesMean = 0;
 
         for (int i = firstVariabilityIndex; i < array_length; i++) {
-            std::cout << "compute_variability: variabilities[" << i << "]=" << variabilities[i] << std::endl;
+            std::cout<<"compute_variability: variabilities["<<i<<"]="<<variabilities[i]<<std::endl;
             variabilitiesMean += variabilities[i];
         }
-        variabilitiesMean /= (array_length - firstVariabilityIndex);
-        std::cout << "operations.compute_variability: mean: " << variabilitiesMean << std::endl;
+        variabilitiesMean /= (array_length-firstVariabilityIndex);
+        std::cout<<"operations.compute_variability: mean: "<<variabilitiesMean<<std::endl;
 
         return variabilitiesMean;
     }

@@ -24,12 +24,24 @@
     <ClCompile Include="common\fintech_library.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="common\EuropeanCallOption.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="common\math_utilities.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\statistics_calculator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\fintech_library.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\math_utilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EuropeanCallOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

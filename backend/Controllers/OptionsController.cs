@@ -29,20 +29,6 @@ namespace FintechModelerWebApi.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Option>> Get()
         {
-            // Call the PriceEuropeanCallOption function
-            double optionPrice = PriceEuropeanCallOption(
-                /*expiry_time=*/ 2,
-                /*period_number=*/ 8,
-                /*volatility=*/ 0.30,
-                /*continuous_rf_rate=*/ 0.02,
-                /*initial_share_price=*/ 100,
-                /*strike_price=*/ 105
-            );
-            
-            Debug.WriteLine($"Calculated option price: {optionPrice}");
-
-            options[0].Price = (decimal)optionPrice;
-
             return Ok(options);
         }
 
@@ -62,6 +48,34 @@ namespace FintechModelerWebApi.Controllers
             newoption.Id = options.Count + 1;
             options.Add(newoption);
             return CreatedAtAction(nameof(Get), new { id = newoption.Id }, newoption);
+        }
+
+        [HttpPost("price")]
+        public IActionResult CalculateOptionPrice([FromBody] OptionPricingParameters parameters)
+        {
+            try
+            {
+                // Call the DLL function with the parameters
+                double optionPrice = PriceEuropeanCallOption(
+                    parameters.ExpiryTime,
+                    parameters.PeriodNumber,
+                    parameters.Volatility,
+                    parameters.ContinuousRfRate,
+                    parameters.InitialSharePrice,
+                    parameters.StrikePrice
+                );
+
+                Debug.WriteLine($"Calculated option price: {optionPrice}");
+
+                options[0].Price = (decimal)optionPrice;
+
+                return Ok(options);
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions and return an error response
+                return StatusCode(500, new { Error = ex.Message });
+            }
         }
 
         // PUT: api/options/1

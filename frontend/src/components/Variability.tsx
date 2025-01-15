@@ -1,27 +1,46 @@
 import React, { useEffect, useState } from 'react';
 
-interface OptionPriceData {
-    id: string;
+interface OptionData {
+    id: number;
     name: string;
+    type: string;
     price: number;
 }
-  
+
 const Variability: React.FC = () => {
-    const [data, setData] = useState<OptionPriceData[] | null>(null); // Expecting an array
+    const [data, setData] = useState<OptionData[] | null>(null); // Expecting an array
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
   
     useEffect(() => {
       const fetchData = async () => {
+        const url = 'https://localhost:7200/api/Options/price';
+        const payload = {
+            expiryTime: 2,
+            periodNumber: 8,
+            volatility: 0.3,
+            continuousRfRate: 0.04,
+            initialSharePrice: 50,
+            strikePrice: 60,
+        };
+
         try {
-          const response = await fetch('https://localhost:7200/api/Products');          
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+
           if (!response.ok) {
-            throw new Error(`Error after fetch: ${response.statusText}`);
+            throw new Error(`Error after fetch: ${response.status}`);
           }
 
-          const result: OptionPriceData[] = await response.json(); // Expecting an array
+          const result: OptionData[] = await response.json(); // Expecting an array
           console.log('Fetched data:', result);
           setData(result);
+
         } catch (err) {
           setError(err.message);
         } finally {

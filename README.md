@@ -2,7 +2,11 @@
 
 ## Summary 
 
-A financial and fintech application built with C++ (calculation), Python (data analysis), C# ASP.NET (backend), and TypeScript React (frontend).
+A financial and fintech application developed with:
+- C++ (calculation and pricing)
+- Python (data analysis)
+- C# with ASP.NET (REST API backend)
+- TypeScript with React (frontend).
 
 It calculates the price of European-style call options using an exponentiated biased lattice random walk within a multi-period binomial tree model.
 

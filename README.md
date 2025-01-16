@@ -6,20 +6,23 @@ A financial and fintech application built with C++, Python, C# ASP.NET (backend)
 
 It calculates the price of European-style call options using an exponentiated biased lattice random walk within a multi-period binomial tree model.
 
-<p float="left">
-  <img src="screenshots/screenshot01.png" height ="502" width="590" hspace="10" />
-</p>
+<kbd>
+  <img src="screenshots/screenshot01.png" height ="502" width="673" hspace="10" />
+</kbd>
 
-Additional Features:
+## Additional Features
+
 - Black-Scholes Model Implementation: accurately prices European call options based on the underlying stock price, strike price, and expiration date.
 - Real-Time Financial Data Access: retrieves and analyzes stock price variability using live data from the Yahoo Finance API.
 - Data Analysis: uses Python's Pandas, NumPy, and Matplotlib for financial modeling and visualization.
 
 These features enable accurate option price predictions, aligning closely with real-world results from Saxo Bank (SaxoTraderGO): https://www.home.saxo/platforms/saxotradergo
 
-<p float="left">
-  <img src="screenshots/screenshot02.png" height ="502" width="590" hspace="10" />
-</p>
+<kbd>
+  <img src="screenshots/screenshot02.png" height ="502" width="591" hspace="10" />
+</kbd>
+
+<br/>
 
 ## Details
 

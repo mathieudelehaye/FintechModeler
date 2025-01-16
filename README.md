@@ -2,15 +2,23 @@
 
 ## Summary 
 
-A Python and C++ application for fintech modelling:
-- It implements the Black-Scholes model, in order to price call option derivatives, according to the underlying stock price, the strike price and the expiration date.
-- The backend is a REST API implemented with Flask. It assesses the stock price variability with data from Yahoo Finance.
-- The frontend is implemented with React and TypeScript.
+A financial and fintech application built with C++, Python, C# ASP.NET (backend), and TypeScript React (frontend).
 
-This app let me predict with accuracy the option results from Saxo bank (SaxoTraderGO): https://www.home.saxo/platforms/saxotradergo
+It calculates the price of European-style call options using an exponentiated biased lattice random walk within a multi-period binomial tree model.
 
 <p float="left">
   <img src="screenshots/screenshot01.png" height ="502" width="590" hspace="10" />
+</p>
+
+Additional Features:
+- Black-Scholes Model Implementation: accurately prices European call options based on the underlying stock price, strike price, and expiration date.
+- Real-Time Financial Data Access: retrieves and analyzes stock price variability using live data from the Yahoo Finance API.
+- Data Analysis: uses Python's Pandas, NumPy, and Matplotlib for financial modeling and visualization.
+
+These features enable accurate option price predictions, aligning closely with real-world results from Saxo Bank (SaxoTraderGO): https://www.home.saxo/platforms/saxotradergo
+
+<p float="left">
+  <img src="screenshots/screenshot02.png" height ="502" width="590" hspace="10" />
 </p>
 
 ## Details

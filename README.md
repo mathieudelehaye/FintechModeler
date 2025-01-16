@@ -30,7 +30,7 @@ These features enable accurate option price predictions, aligning closely with r
 
 ## Details
 
-The implementation is made both in Python with pandas and NumPy, as well as in C++, in order to compare the runtime performance of those programming languages for fintech applications.
+The implementation is made both in C++, Python with pandas and NumPy, as well as in C# and TypeScript, in order to compare the runtime performance of those programming languages for fintech applications.
 
 ## How-to guide
 

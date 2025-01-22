@@ -2,6 +2,8 @@
 
 ## Summary 
 
+The application is deployed on Azure: https://nice-mud-07fe6b603.4.azurestaticapps.net/
+
 A financial and fintech application developed with:
 - C++ (calculation and pricing)
 - Python (data analysis)

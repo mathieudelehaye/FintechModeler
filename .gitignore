@@ -5,6 +5,9 @@ __pycache__/
 
 .DS_Store
 
+*.pubxml.user
+*.pubxml
+
 # C extensions
 *.so
 *.dll
@@ -12,6 +15,13 @@ __pycache__/
 *.pdb
 *.exp
 x64/
+*.obj
+
+payload.json
+*.tlog
+*.idb
+*.ilk
+*.recipe
 
 # Distribution / packaging
 .Python

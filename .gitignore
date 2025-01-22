@@ -22,6 +22,7 @@ payload.json
 *.idb
 *.ilk
 *.recipe
+*.swp
 
 # Distribution / packaging
 .Python

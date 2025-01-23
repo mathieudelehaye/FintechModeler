@@ -20,7 +20,8 @@ int main() {
 
     std::ostringstream oss;
 
-    const double calculatedPrice = PriceEuropeanCallOption(
+    const double calculatedPrice = PriceEuropeanOption(
+        /*type=*/Put,
         /*expiry_time=*/ 2,
         /*period_number=*/ 8,
         /*volatility=*/ 0.30,
@@ -32,4 +33,3 @@ int main() {
     oss << "The calculated price is: " << calculatedPrice << "\n";
     logToVSOutput(oss.str());
 }
-

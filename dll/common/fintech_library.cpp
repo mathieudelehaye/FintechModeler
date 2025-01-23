@@ -1,8 +1,9 @@
 #include <fintech_library.h>
 
-#include <EuropeanCallOption.h>
+#include <EuropeanOption/EuropeanOption.h>
 
-double PriceEuropeanCallOption(
+double PriceEuropeanOption(
+    OptionType type,
     double expiry_time,
     int period_number,
     double volatility,
@@ -10,7 +11,8 @@ double PriceEuropeanCallOption(
     double initial_share_price,
     double strike_price) {
 
-    EuropeanCallOption::PricingModelParameters parameters{};
+    EuropeanOption::PricingModelParameters parameters{};
+    parameters.option_type = static_cast<EuropeanOption::Type>(type);
     parameters.expiry_time = expiry_time;
     parameters.period_number = period_number;
     parameters.volatility = volatility;
@@ -18,6 +20,22 @@ double PriceEuropeanCallOption(
     parameters.initial_share_price = initial_share_price;
     parameters.strike_price = strike_price;
 
-    EuropeanCallOption option(parameters); 
-    return option.calculatePrice();
+    double result = 0;
+
+    switch (parameters.option_type) {
+    case EuropeanOption::Type::Call:
+    {
+        EuropeanCallOption option(parameters); 
+        result = option.calculatePrice();
+        break;
+    }
+    default:
+    {
+        EuropeanPutOption option(parameters);
+        result = option.calculatePrice();
+        break;
+    }
+    };
+
+    return result;
 }

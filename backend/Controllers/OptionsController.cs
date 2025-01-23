@@ -9,9 +9,9 @@ namespace FintechModelerWebApi.Controllers
     [ApiController]
     public class OptionsController : ControllerBase
     {
-        // Import the PriceEuropeanCallOption function from the C++ DLL
+        // Import the PriceEuropeanOption function from the C++ DLL
         [DllImport("fintech_model.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern double PriceEuropeanCallOption(
+        public static extern double PriceEuropeanOption(
             double expiry_time,
             int period_number,
             double volatility,
@@ -56,7 +56,7 @@ namespace FintechModelerWebApi.Controllers
             try
             {
                 // Call the DLL function with the parameters
-                double optionPrice = PriceEuropeanCallOption(
+                double optionPrice = PriceEuropeanOption(
                     parameters.ExpiryTime,
                     parameters.PeriodNumber,
                     parameters.Volatility,

@@ -142,14 +142,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="common\EuropeanCallOption.cpp" />
+    <ClCompile Include="common\EuropeanOption\EuropeanCallOption.cpp" />
+    <ClCompile Include="common\EuropeanOption\EuropeanOption.cpp" />
+    <ClCompile Include="common\EuropeanOption\EuropeanPutOption.cpp" />
     <ClCompile Include="common\fintech_library.cpp" />
     <ClCompile Include="common\math_utilities.cpp" />
     <ClCompile Include="common\operations.cpp" />
     <ClCompile Include="common\statistics_calculator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\EuropeanCallOption.h" />
+    <ClInclude Include="include\EuropeanOption\EuropeanOption.h" />
     <ClInclude Include="include\fintech_library.h" />
     <ClInclude Include="include\math_utilities.h" />
     <ClInclude Include="include\statistics_calculator.h" />

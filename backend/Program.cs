@@ -5,7 +5,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", builder =>
     {
-        builder.WithOrigins("http://localhost:3000") // React app URL
+        builder.WithOrigins("http://localhost:3000") // Frontend local URL
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });    
+    options.AddPolicy("AllowReactApp", builder =>
+    {
+        builder.WithOrigins("https://nice-mud-07fe6b603.4.azurestaticapps.net") // Frontend Azure URL
             .AllowAnyHeader()
             .AllowAnyMethod();
     });

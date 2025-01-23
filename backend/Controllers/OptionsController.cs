@@ -9,9 +9,16 @@ namespace FintechModelerWebApi.Controllers
     [ApiController]
     public class OptionsController : ControllerBase
     {
+        private enum OptionType : int
+        {
+            Call = 0,
+            Put = 1
+        }
+
         // Import the PriceEuropeanOption function from the C++ DLL
         [DllImport("fintech_model.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern double PriceEuropeanOption(
+        private static extern double PriceEuropeanOption(
+            OptionType type,
             double expiry_time,
             int period_number,
             double volatility,
@@ -22,7 +29,7 @@ namespace FintechModelerWebApi.Controllers
 
         private static List<Option> options = new List<Option>
         {
-            new Option { Id = 1, Name = "Aapl", Type = "call", Price = 0 }
+            new Option { Id = 1, Name = "Aapl", Price = 0 }
         };
 
         // GET: api/options
@@ -57,6 +64,7 @@ namespace FintechModelerWebApi.Controllers
             {
                 // Call the DLL function with the parameters
                 double optionPrice = PriceEuropeanOption(
+                    parameters.Type == "call" ? OptionType.Call : OptionType.Put,
                     parameters.ExpiryTime,
                     parameters.PeriodNumber,
                     parameters.Volatility,
@@ -86,7 +94,6 @@ namespace FintechModelerWebApi.Controllers
             if (option == null) return NotFound();
 
             option.Name = updatedoption.Name;
-            option.Type = updatedoption.Type;
             option.Price = updatedoption.Price;
 
             return NoContent();

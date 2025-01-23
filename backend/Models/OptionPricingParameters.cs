@@ -2,6 +2,7 @@
 {
     public class OptionPricingParameters
     {
+        public string? Type { get; set; }
         public double ExpiryTime { get; set; }
         public int PeriodNumber { get; set; }
         public double Volatility { get; set; }

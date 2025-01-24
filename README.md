@@ -25,7 +25,7 @@ It calculates the price of European-style call options using an exponentiated bi
 These features enable accurate option price predictions, aligning closely with real-world results from Saxo Bank (SaxoTraderGO): https://www.home.saxo/platforms/saxotradergo
 
 <kbd>
-  <img src="screenshots/screenshot02.png" height ="444" width="800" hspace="10" />
+  <img src="screenshots/screenshot02.png" height ="425" width="500" hspace="10" />
 </kbd>
 
 <br/>

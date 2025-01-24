@@ -19,6 +19,7 @@ const fieldLabels: Record<string, string> = {
 
 const OptionPricingForm = () => {
   const [formData, setFormData] = useState({
+    type: "call",
     expiryTime: 2,
     periodNumber: 8,
     volatility: 0.3,
@@ -36,14 +37,25 @@ const OptionPricingForm = () => {
     setFormData({ ...formData, [name]: parseFloat(value) });
   };
 
+   // Specific change handler for the radio buttons
+   const handleTypeChange = (e) => {
+    setFormData(prevData => ({
+      ...prevData,
+      type: e.target.value,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    console.log(formData);
+
     setLoading(true);
     setError("");
     
     try {
-      // const url = 'https://localhost:7200/api/Options/price';
       const url = 'https://backend20250103203956.azurewebsites.net/api/Options/price'
+      
       setOptionData(null);
 
       const response = await fetch(url, {
@@ -70,7 +82,15 @@ const OptionPricingForm = () => {
   };
 
   return (
-    <Box sx={{ backgroundColor: "white", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <Box
+      sx={{
+        backgroundColor: 'white',
+        minHeight: '90vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <Container maxWidth="sm">
         <Paper elevation={3} sx={{ padding: 4, borderRadius: 2 }}>
           <Typography variant="h5" gutterBottom textAlign="center">
@@ -79,25 +99,71 @@ const OptionPricingForm = () => {
 
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
-              {Object.entries(formData).map(([key, value]) => (
-                <Grid item xs={12} sm={6} key={key}>
-                  <TextField
-                    fullWidth
-                    label={fieldLabels[key] || key}
-                    name={key}
-                    value={value}
-                    onChange={handleChange}
-                    type="number"
-                    required
-                    variant="outlined"
-                    inputProps={key === "continuousRfRate" || key === "volatility" || key === "expiryTime" ? { step: "0.01" } : {}}
-                  />
-                </Grid>
-              ))}
+              {/* Radio Buttons for Type */}
+              <Grid item xs={12} sx={{ marginBottom: 2 }}>
+                <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Option Type
+                  </Typography>
+                  <label style={{ marginRight: '1rem' }}>
+                    <input
+                      type="radio"
+                      name="type"
+                      value="call"
+                      checked={formData.type === 'call'}
+                      onChange={handleTypeChange}
+                      style={{ marginRight: '0.3rem' }}
+                    />
+                    Call
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="type"
+                      value="put"
+                      checked={formData.type === 'put'}
+                      onChange={handleTypeChange}
+                      style={{ marginRight: '0.3rem' }}
+                    />
+                    Put
+                  </label>
+                </fieldset>
+              </Grid>
+
+              {/* Dynamic TextFields excluding 'type' */}
+              {Object.entries(formData)
+                .filter(([key]) => key !== 'type')
+                .map(([key, value]) => (
+                  <Grid item xs={12} sm={6} key={key}>
+                    <TextField
+                      fullWidth
+                      label={fieldLabels[key] || key}
+                      name={key}
+                      value={value}
+                      onChange={handleChange}
+                      type="number"
+                      required
+                      variant="outlined"
+                      inputProps={
+                        key === 'continuousRfRate' ||
+                        key === 'volatility' ||
+                        key === 'expiryTime'
+                          ? { step: '0.01' }
+                          : {}
+                      }
+                    />
+                  </Grid>
+                ))}
             </Grid>
 
             <Box textAlign="center" mt={3}>
-              <Button type="submit" variant="contained" color="primary" size="large">
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                size="large"
+                disabled={loading}
+              >
                 Calculate Price
               </Button>
             </Box>
@@ -116,7 +182,12 @@ const OptionPricingForm = () => {
           )}
 
           {optionData !== null && (
-            <Typography variant="h6" color="primary" textAlign="center" mt={3}>
+            <Typography
+              variant="h6"
+              color="primary"
+              textAlign="center"
+              mt={3}
+            >
               Option Price for {optionData[0].name.toUpperCase()}: <strong>${optionData[0].price.toFixed(2)}</strong>
             </Typography>
           )}

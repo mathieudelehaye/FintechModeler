@@ -32,31 +32,6 @@ namespace FintechModelerWebApi.Controllers
             new Option { Id = 1, Name = "Aapl", Price = 0 }
         };
 
-        // GET: api/options
-        [HttpGet]
-        public ActionResult<IEnumerable<Option>> Get()
-        {
-            return Ok(options);
-        }
-
-        // GET: api/options/1
-        [HttpGet("{id}")]
-        public ActionResult<Option> Get(int id)
-        {
-            var option = options.FirstOrDefault(p => p.Id == id);
-            if (option == null) return NotFound();
-            return Ok(option);
-        }
-
-        // POST: api/options
-        [HttpPost]
-        public ActionResult<Option> Post([FromBody] Option newoption)
-        {
-            newoption.Id = options.Count + 1;
-            options.Add(newoption);
-            return CreatedAtAction(nameof(Get), new { id = newoption.Id }, newoption);
-        }
-
         [HttpPost("price")]
         public IActionResult CalculateOptionPrice([FromBody] OptionPricingParameters parameters)
         {
@@ -84,31 +59,6 @@ namespace FintechModelerWebApi.Controllers
                 // Handle exceptions and return an error response
                 return StatusCode(500, new { Error = ex.Message });
             }
-        }
-
-        // PUT: api/options/1
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] Option updatedoption)
-        {
-            var option = options.FirstOrDefault(p => p.Id == id);
-            if (option == null) return NotFound();
-
-            option.Name = updatedoption.Name;
-            option.Price = updatedoption.Price;
-
-            return NoContent();
-        }
-
-        // DELETE: api/options/1
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            var option = options.FirstOrDefault(p => p.Id == id);
-            if (option == null) return NotFound();
-
-            options.Remove(option);
-
-            return NoContent();
         }
     }
 }

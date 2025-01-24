@@ -13,7 +13,7 @@ A financial and fintech application developed with:
 It calculates the price of European-style call options using an exponentiated biased lattice random walk within a multi-period binomial tree model.
 
 <kbd>
-  <img src="screenshots/screenshot01.png" height ="502" width="673" hspace="10" />
+  <img src="screenshots/screenshot01.png" height ="502" width="955" hspace="10" />
 </kbd>
 
 ## Additional Features

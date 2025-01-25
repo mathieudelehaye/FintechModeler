@@ -1,6 +1,6 @@
 #include <fintech_library.h>
 
-#include <EuropeanOption/EuropeanOption.h>
+#include <EuropeanOption/BinomialEuropeanOption.h>
 
 double PriceEuropeanOption(
     OptionType type,
@@ -25,14 +25,14 @@ double PriceEuropeanOption(
     switch (parameters.option_type) {
     case EuropeanOption::Type::Call:
     {
-        EuropeanCallOption option(parameters); 
-        result = option.calculatePrice();
+        BinomialEuropeanCallOption option(parameters); 
+        result = option.calculateInitialPrice();
         break;
     }
     default:
     {
-        EuropeanPutOption option(parameters);
-        result = option.calculatePrice();
+        BinomialEuropeanPutOption option(parameters);
+        result = option.calculateInitialPrice();
         break;
     }
     };

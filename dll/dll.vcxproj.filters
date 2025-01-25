@@ -13,13 +13,16 @@
     <ClCompile Include="common\statistics_calculator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="common\EuropeanOption\EuropeanCallOption.cpp">
+    <ClCompile Include="common\EuropeanOption\BinomialEuropeanCallOption.cpp">
       <Filter>Source Files\EuropeanOption</Filter>
     </ClCompile>
-    <ClCompile Include="common\EuropeanOption\EuropeanOption.cpp">
+    <ClCompile Include="common\EuropeanOption\BinomialEuropeanOption.cpp">
       <Filter>Source Files\EuropeanOption</Filter>
     </ClCompile>
-    <ClCompile Include="common\EuropeanOption\EuropeanPutOption.cpp">
+    <ClCompile Include="common\EuropeanOption\BinomialEuropeanPutOption.cpp">
+      <Filter>Source Files\EuropeanOption</Filter>
+    </ClCompile>
+    <ClCompile Include="common\EuropeanOption\BSEuropeanOption.cpp">
       <Filter>Source Files\EuropeanOption</Filter>
     </ClCompile>
   </ItemGroup>
@@ -34,6 +37,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\EuropeanOption\EuropeanOption.h">
+      <Filter>Header Files\EuropeanOption</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EuropeanOption\BSEuropeanOption.h">
+      <Filter>Header Files\EuropeanOption</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EuropeanOption\BinomialEuropeanOption.h">
       <Filter>Header Files\EuropeanOption</Filter>
     </ClInclude>
   </ItemGroup>

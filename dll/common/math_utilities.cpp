@@ -1,3 +1,5 @@
+#include <cmath>
+
 namespace MathUtilities {
     unsigned long long factorial(unsigned int n) {
         unsigned long long result = 1;
@@ -22,5 +24,9 @@ namespace MathUtilities {
             result *= base;
         }
         return result;
+    }
+
+    double N(double z) {
+        return (static_cast<double>(1) / 2) * (1 + std::erf(z / std::sqrt(2)));
     }
 }

@@ -142,15 +142,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="common\EuropeanOption\EuropeanCallOption.cpp" />
-    <ClCompile Include="common\EuropeanOption\EuropeanOption.cpp" />
-    <ClCompile Include="common\EuropeanOption\EuropeanPutOption.cpp" />
+    <ClCompile Include="common\EuropeanOption\BinomialEuropeanCallOption.cpp" />
+    <ClCompile Include="common\EuropeanOption\BinomialEuropeanOption.cpp" />
+    <ClCompile Include="common\EuropeanOption\BinomialEuropeanPutOption.cpp" />
+    <ClCompile Include="common\EuropeanOption\BSEuropeanOption.cpp" />
     <ClCompile Include="common\fintech_library.cpp" />
     <ClCompile Include="common\math_utilities.cpp" />
     <ClCompile Include="common\operations.cpp" />
     <ClCompile Include="common\statistics_calculator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\EuropeanOption\BinomialEuropeanOption.h" />
+    <ClInclude Include="include\EuropeanOption\BSEuropeanOption.h" />
     <ClInclude Include="include\EuropeanOption\EuropeanOption.h" />
     <ClInclude Include="include\fintech_library.h" />
     <ClInclude Include="include\math_utilities.h" />

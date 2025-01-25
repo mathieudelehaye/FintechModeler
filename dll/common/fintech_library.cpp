@@ -1,9 +1,53 @@
 #include <fintech_library.h>
 
 #include <EuropeanOption/BinomialEuropeanOption.h>
+#include <EuropeanOption/BSEuropeanOption.h>
+
+static double PriceBinomialEuropeanOption(const EuropeanOption::PricingModelParameters& parameters, OptionType type) {
+    double result = 0;
+
+    switch (type) {
+    case OptionType::Call:
+    {
+        BinomialEuropeanCallOption option(parameters);
+        result = option.calculateInitialPrice();
+        break;
+    }
+    default:
+    {
+        BinomialEuropeanPutOption option(parameters);
+        result = option.calculateInitialPrice();
+        break;
+    }
+    };
+
+    return result;
+}
+
+static double PriceBSEuropeanOption(const EuropeanOption::PricingModelParameters& parameters, OptionType type) {
+    double result = 0;
+
+    switch (type) {
+    case OptionType::Call:
+    {
+        BSEuropeanCallOption option(parameters);
+        result = option.calculateInitialPrice();
+        break;
+    }
+    default:
+    {
+        BSEuropeanPutOption option(parameters);
+        result = option.calculateInitialPrice();
+        break;
+    }
+    };
+
+    return result;
+}
 
 double PriceEuropeanOption(
     OptionType type,
+    CalculationMethod method,
     double expiry_time,
     int period_number,
     double volatility,
@@ -12,7 +56,6 @@ double PriceEuropeanOption(
     double strike_price) {
 
     EuropeanOption::PricingModelParameters parameters{};
-    parameters.option_type = static_cast<EuropeanOption::Type>(type);
     parameters.expiry_time = expiry_time;
     parameters.period_number = period_number;
     parameters.volatility = volatility;
@@ -22,17 +65,15 @@ double PriceEuropeanOption(
 
     double result = 0;
 
-    switch (parameters.option_type) {
-    case EuropeanOption::Type::Call:
+    switch (method) {
+    case Binomial:
     {
-        BinomialEuropeanCallOption option(parameters); 
-        result = option.calculateInitialPrice();
+        result = PriceBinomialEuropeanOption(parameters, type);
         break;
     }
     default:
     {
-        BinomialEuropeanPutOption option(parameters);
-        result = option.calculateInitialPrice();
+        result = PriceBSEuropeanOption(parameters, type);
         break;
     }
     };

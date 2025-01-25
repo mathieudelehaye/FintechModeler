@@ -2,13 +2,7 @@
 
 class EuropeanOption {
 public:
-    enum class Type {
-        Call,
-        Put
-    };
-
     struct PricingModelParameters {
-        Type option_type;
         double expiry_time;
         int period_number;
         double volatility;

@@ -21,7 +21,8 @@ int main() {
     std::ostringstream oss;
 
     const double calculatedPrice = PriceEuropeanOption(
-        /*type=*/Call,
+        /*type=*/Put,
+        /*method=*/BS,
         /*expiry_time=*/ 2,
         /*period_number=*/ 8,
         /*volatility=*/ 0.30,

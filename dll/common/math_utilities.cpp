@@ -27,6 +27,6 @@ namespace MathUtilities {
     }
 
     double N(double z) {
-        return (static_cast<double>(1) / 2) * (1 + std::erf(z / std::sqrt(2)));
+        return 0.5 * (1.0 + std::erf(z / std::sqrt(2.0)));
     }
 }

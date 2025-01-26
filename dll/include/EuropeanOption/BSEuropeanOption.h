@@ -3,17 +3,37 @@
 #include <EuropeanOption/EuropeanOption.h>
 
 
-class BSEuropeanCallOption : public EuropeanOption {
+class BSEuropeanOption : public EuropeanOption {
 public:
-    BSEuropeanCallOption(const PricingModelParameters& params) : EuropeanOption(params) {}
+    BSEuropeanOption(const PricingModelParameters& params);
+
+    double calculateVegaGreek();
+    double calculateImpliedVolatility(double optionPrice);
+
+protected:
+    struct ModelInternalParameters {
+        double d1;
+        double d2;
+    };
+
+    ModelInternalParameters internalParameters;
+
+private:
+    void updateInternalParameters();
+};
+
+
+class BSEuropeanCallOption : public BSEuropeanOption {
+public:
+    BSEuropeanCallOption(const PricingModelParameters& params) : BSEuropeanOption(params) {}
 
     double calculateInitialPrice() override;
 }; 
 
 
-class BSEuropeanPutOption : public EuropeanOption {
+class BSEuropeanPutOption : public BSEuropeanOption {
 public:
-    BSEuropeanPutOption(const PricingModelParameters& params) : EuropeanOption(params) {}
+    BSEuropeanPutOption(const PricingModelParameters& params) : BSEuropeanOption(params) {}
 
     double calculateInitialPrice() override;
 };

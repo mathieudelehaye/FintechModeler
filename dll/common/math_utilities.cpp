@@ -1,4 +1,7 @@
+# include <math_utilities.h>
+
 #include <cmath>
+#include <functional>
 
 namespace MathUtilities {
     unsigned long long factorial(unsigned int n) {
@@ -28,5 +31,29 @@ namespace MathUtilities {
 
     double N(double z) {
         return 0.5 * (1.0 + std::erf(z / std::sqrt(2.0)));
+    }
+    
+    double n(double z) {
+        return differentiate(N, z);
+    }
+
+    double differentiate(const std::function<double(double)>& f, double x, double dx) {
+        return (f(x + dx) - f(x)) / dx;
+    }
+
+    static double run_newton_step(const std::function<double(double)>& f, double x) {
+        return x - f(x) / differentiate(f, x);
+    }
+
+    double find_newton_root(const std::function<double(double)>& f, double x, double tol = 0.01) {
+        double previous_root = 0.0;
+        double current_root = x;
+
+        do {
+            previous_root = current_root;
+            current_root = run_newton_step(f, x);
+        } while (std::abs(current_root - previous_root) > tol);
+
+        return current_root;
     }
 }

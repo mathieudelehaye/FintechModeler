@@ -78,5 +78,42 @@ double PriceEuropeanOption(
     }
     };
 
+    return result; 
+}
+
+double CalculateBSImpliedVolatility(
+    double option_market_price,
+    OptionType type,
+    double expiry_time,
+    int period_number,
+    double continuous_rf_rate,
+    double strike_price,
+    double initial_share_price) {
+
+    EuropeanOption::PricingModelParameters parameters{};
+    parameters.expiry_time = expiry_time;
+    parameters.period_number = period_number;
+    parameters.volatility = 0; // not used here
+    parameters.continuous_rf_rate = continuous_rf_rate;
+    parameters.initial_share_price = initial_share_price;
+    parameters.strike_price = strike_price;
+
+    double result = 0;
+
+    switch (type) {
+    case OptionType::Call:
+    {
+        BSEuropeanCallOption option(parameters);
+        result = option.calculateImpliedVolatility(option_market_price);
+        break;
+    }
+    default:
+    {
+        BSEuropeanPutOption option(parameters);
+        result = option.calculateImpliedVolatility(option_market_price);
+        break;
+    }
+    };
+
     return result;
 }

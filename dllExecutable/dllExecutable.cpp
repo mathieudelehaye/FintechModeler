@@ -1,6 +1,8 @@
 // dllExecutable.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
+#include <cassert>
+#include <cmath>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -20,17 +22,49 @@ int main() {
 
     std::ostringstream oss;
 
-    const double calculatedPrice = PriceEuropeanOption(
-        /*type=*/Call,
-        /*method=*/BS,
-        /*expiry_time=*/ 2,
-        /*period_number=*/ 8,
-        /*volatility=*/ 0.30,
-        /*continuous_rf_rate=*/ 0.02,
-        /*initial_share_price=*/ 100,
-        /*strike_price=*/ 105
-    );
+    const double calculatedPrice01 = std::round(
+        PriceEuropeanOption(
+            /*type=*/Call,
+            /*method=*/BS,
+            /*expiry_time=*/ 2,
+            /*period_number=*/ 8,
+            /*volatility=*/ 0.30,
+            /*continuous_rf_rate=*/ 0.02,
+            /*initial_share_price=*/ 100,
+            /*strike_price=*/ 105
+        ) * 100.0) / 100;
+    assert(calculatedPrice01 == 16.44);
+    oss << "The calculated price for a Call with the BS method is: " << calculatedPrice01 << "\n";
+    logToVSOutput(oss.str()); oss.str("");
 
-    oss << "The calculated price is: " << calculatedPrice << "\n";
+    const double calculatedPrice02 = std::round(
+        PriceEuropeanOption(
+            /*type=*/Put,
+            /*method=*/Binomial,
+            /*expiry_time=*/ 2,
+            /*period_number=*/ 8,
+            /*volatility=*/ 0.30,
+            /*continuous_rf_rate=*/ 0.02,
+            /*initial_share_price=*/ 100,
+            /*strike_price=*/ 105
+        ) * 100.0) / 100;
+    assert(calculatedPrice02 == 17.35);
+    oss << "The calculated price for a Put with the Binomial method is: " << calculatedPrice02 << "\n";
+    logToVSOutput(oss.str()); oss.str("");
+    
+    const double market_price = 15.25;  // expected BS price: 16.44
+    const double impliedVolatiliy = std::round(
+        CalculateBSImpliedVolatility(
+            /*option_market_price=*/market_price,  
+            /*type=*/Call,
+            /*expiry_time=*/ 2,
+            /*period_number=*/ 8,
+            /*continuous_rf_rate=*/ 0.02,
+            /*initial_share_price=*/ 100,
+            /*strike_price=*/ 105
+        ) * 100.0) / 100;
+    assert(impliedVolatiliy == 0.19);
+    oss.clear();
+    oss << "The implied volatily for a Call with market price " << market_price << " is: " << impliedVolatiliy << "\n";
     logToVSOutput(oss.str());
 }

@@ -28,4 +28,13 @@ extern "C" {
         double continuous_rf_rate,
         double initial_share_price,
         double strike_price);
+
+    MYLIBRARY_API double CalculateBSImpliedVolatility(
+        double option_market_price,
+        OptionType type,
+        double expiry_time,
+        int period_number,
+        double continuous_rf_rate,
+        double strike_price,
+        double initial_share_price);
 }

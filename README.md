@@ -13,7 +13,7 @@ It is a financial and fintech application developed with:
 It calculates the price of European-style call options using an exponentiated biased lattice random walk within a multi-period binomial tree model.
 
 <kbd>
-  <img src="screenshots/screenshot01.png" height ="360" width="450" hspace="10" />
+  <img src="screenshots/screenshot01.png" height ="320" width="400" hspace="10" />
 </kbd>
 
 ## Additional Features
@@ -25,7 +25,7 @@ It calculates the price of European-style call options using an exponentiated bi
 These features enable accurate option price predictions, aligning closely with real-world results from Saxo Bank (SaxoTraderGO): https://www.home.saxo/platforms/saxotradergo
 
 <kbd>
-  <img src="screenshots/screenshot02.png" height ="360" width="450" hspace="10" />
+  <img src="screenshots/screenshot02.png" height ="320" width="400" hspace="10" />
 </kbd>
 
 ## Details

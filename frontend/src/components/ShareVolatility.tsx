@@ -4,28 +4,26 @@ import { Container, TextField, Button, Typography, Box, Paper, Grid, CircularPro
 import OptionTypeSelector  from './OptionTypeSelector .tsx';
 
 interface OptionData {
-    id: number;
-    name: string;
-    type: string;
-    price: number;
+  id: number;
+  name: string;
+  price: number;
+  volatility: number;
 }
 
 const fieldLabels: Record<string, string> = {
   expiryTime: "Expiry Time (Years)",
-  periodNumber: "Number of Periods",
-  volatility: "Volatility (%)",
+  initialOptionPrice: "Initial Option Price ($)",
   continuousRfRate: "Continous Risk-Free Rate (%)",
   initialSharePrice: "Initial Share Price ($)",
   strikePrice: "Strike Price ($)",
 };
 
-const OptionPricingForm = () => {
+const ShareVolatilityForm = () => {
   const [formData, setFormData] = useState({
+    initialOptionPrice: 15,
     type: "call",
     expiryTime: 2,
-    periodNumber: 8,
-    volatility: 0.3,
-    continuousRfRate: 0.04,
+    continuousRfRate: 0.05,
     initialSharePrice: 50,
     strikePrice: 60,
   });
@@ -56,7 +54,7 @@ const OptionPricingForm = () => {
     setError("");
     
     try {
-      const url = 'https://backend20250103203956.azurewebsites.net/api/Options/price'
+      const url = 'const url = 'https://backend20250103203956.azurewebsites.net/api/Options/volatility';
       
       setOptionData(null);
 
@@ -96,7 +94,7 @@ const OptionPricingForm = () => {
       <Container maxWidth="sm">
         <Paper elevation={3} sx={{ padding: 4, borderRadius: 2 }}>
           <Typography variant="h5" gutterBottom textAlign="center">
-            European Option Price Calculator
+            Implied Volatility Calculator
           </Typography>
 
           <form onSubmit={handleSubmit}>
@@ -137,7 +135,7 @@ const OptionPricingForm = () => {
                 size="large"
                 disabled={loading}
               >
-                Calculate Price
+                Calculate Volatility
               </Button>
             </Box>
           </form>
@@ -161,7 +159,7 @@ const OptionPricingForm = () => {
               textAlign="center"
               mt={3}
             >
-              Option Price for {optionData[0].name.toUpperCase()}: <strong>${optionData[0].price.toFixed(2)}</strong>
+              Share Volatilty for {optionData[0].name.toUpperCase()}: <strong>${optionData[0].volatility.toFixed(2)}</strong>
             </Typography>
           )}
         </Paper>
@@ -170,4 +168,4 @@ const OptionPricingForm = () => {
   );
 };
   
-export default OptionPricingForm;
+export default ShareVolatilityForm;

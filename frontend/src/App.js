@@ -2,7 +2,7 @@ import './App.css';
 
 import { Box, Container, Typography } from "@mui/material";
 
-import OptionPricingForm from './components/OptionPrice.tsx';
+import FeatureTabs from './components/FeatureTabs.tsx';
 
 function App() {
   return (
@@ -16,7 +16,7 @@ function App() {
     >
       {/* Main Content */}
       <Container>
-        <OptionPricingForm />
+        <FeatureTabs />
       </Container>
 
       {/* Footer */}

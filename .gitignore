@@ -17,6 +17,8 @@ __pycache__/
 x64/
 *.obj
 
+dll.vcxproj.FileListAbsolute.txt
+
 payload.json
 *.tlog
 *.idb

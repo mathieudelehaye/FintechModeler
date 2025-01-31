@@ -13,7 +13,7 @@ It is a financial and fintech application developed with:
 It calculates the price of European-style call options using an exponentiated biased lattice random walk within a multi-period binomial tree model.
 
 <kbd>
-  <img src="screenshots/screenshot01.png" height ="427" width="500" hspace="10" />
+  <img src="screenshots/screenshot01.png" height ="360" width="450" hspace="10" />
 </kbd>
 
 ## Additional Features
@@ -25,14 +25,16 @@ It calculates the price of European-style call options using an exponentiated bi
 These features enable accurate option price predictions, aligning closely with real-world results from Saxo Bank (SaxoTraderGO): https://www.home.saxo/platforms/saxotradergo
 
 <kbd>
-  <img src="screenshots/screenshot02.png" height ="425" width="500" hspace="10" />
+  <img src="screenshots/screenshot02.png" height ="360" width="450" hspace="10" />
 </kbd>
-
-<br/>
 
 ## Details
 
-The implementation is made both in C++, Python with pandas and NumPy, as well as in C# and TypeScript, in order to compare the runtime performance of those programming languages for fintech applications.
+The implementation is made both in C++, Python with pandas and NumPy, as well as in C# and TypeScript, in order to compare the runtime performance of those programming languages for fintech applications.4
+
+<kbd>
+  <img src="screenshots/screenshot03.png" height ="425" width="500" hspace="10" />
+</kbd>
 
 ## How-to guide
 

@@ -85,7 +85,7 @@ const ShareVolatilityForm = () => {
     <Box
       sx={{
         backgroundColor: 'white',
-        minHeight: '90vh',
+        minHeight: '60vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -159,7 +159,7 @@ const ShareVolatilityForm = () => {
               textAlign="center"
               mt={3}
             >
-              Share Volatilty for {optionData[0].name.toUpperCase()}: <strong>${optionData[0].volatility.toFixed(2)}</strong>
+              Share Volatilty for {optionData[0].name.toUpperCase()}: <strong>{optionData[0].volatility.toFixed(2)} % annually</strong>
             </Typography>
           )}
         </Paper>

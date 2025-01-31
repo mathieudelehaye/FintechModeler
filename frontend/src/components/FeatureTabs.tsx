@@ -24,19 +24,29 @@ const FeatureTabs = () => {
     };
 
     return (
-        <Box>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                    <Tab label="Price" />
-                    <Tab label="Volatility" />
-                </Tabs>
+        <Box
+            sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "85vh",
+                width: "100%",
+            }}
+        >
+            <Box sx={{ width: "75%", bgcolor: "background.paper", p: 3, borderRadius: 2 }}>
+                <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                    <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+                        <Tab label="Price" />
+                        <Tab label="Volatility" />
+                    </Tabs>
+                </Box>
+                <CustomTabPanel value={value} index={0}>
+                    <OptionPricingForm />
+                </CustomTabPanel>
+                <CustomTabPanel value={value} index={1}>
+                    <ShareVolatilityForm />
+                </CustomTabPanel>
             </Box>
-            <CustomTabPanel value={value} index={0}>
-                <OptionPricingForm />
-            </CustomTabPanel>
-            <CustomTabPanel value={value} index={1}>
-                <ShareVolatilityForm />
-            </CustomTabPanel>
         </Box>
     );
 }

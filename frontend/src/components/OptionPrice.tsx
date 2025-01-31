@@ -87,7 +87,7 @@ const OptionPricingForm = () => {
     <Box
       sx={{
         backgroundColor: 'white',
-        minHeight: '90vh',
+        minHeight: '60vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

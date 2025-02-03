@@ -40,10 +40,9 @@ namespace FintechModelerWebApi.Controllers
             double option_market_price,
             OptionType type,
             double expiry_time,
-            int period_number,
             double continuous_rf_rate,
-            double initial_share_price,
-            double strike_price
+            double strike_price,
+            double initial_share_price
         );
 
         private static List<Option> options = new List<Option>
@@ -91,7 +90,6 @@ namespace FintechModelerWebApi.Controllers
                     parameters.InitialOptionPrice,
                     parameters.Type == "call" ? OptionType.Call : OptionType.Put,
                     parameters.ExpiryTime,
-                    parameters.PeriodNumber,
                     parameters.ContinuousRfRate,
                     parameters.InitialSharePrice,
                     parameters.StrikePrice

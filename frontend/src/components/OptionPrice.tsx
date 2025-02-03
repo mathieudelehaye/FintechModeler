@@ -1,13 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { Container, TextField, Button, Typography, Box, Paper, Grid, CircularProgress } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Paper,
+  Grid,
+  CircularProgress,
+} from "@mui/material";
 
-import OptionTypeSelector  from './OptionTypeSelector .tsx';
+import OptionTypeSelector from "./OptionTypeSelector .tsx";
 
 interface OptionData {
-    id: number;
-    name: string;
-    type: string;
-    price: number;
+  id: number;
+  name: string;
+  type: string;
+  price: number;
 }
 
 const fieldLabels: Record<string, string> = {
@@ -39,9 +48,9 @@ const OptionPricingForm = () => {
     setFormData({ ...formData, [name]: parseFloat(value) });
   };
 
-   // Specific change handler for the radio buttons
-   const handleTypeChange = (e) => {
-    setFormData(prevData => ({
+  // Specific change handler for the radio buttons
+  const handleTypeChange = (e) => {
+    setFormData((prevData) => ({
       ...prevData,
       type: e.target.value,
     }));
@@ -54,10 +63,11 @@ const OptionPricingForm = () => {
 
     setLoading(true);
     setError("");
-    
+
     try {
-      const url = 'https://backend20250103203956.azurewebsites.net/api/Options/price'
-      
+      const url =
+        "https://backend20250103203956.azurewebsites.net/api/Options/price";
+
       setOptionData(null);
 
       const response = await fetch(url, {
@@ -73,9 +83,8 @@ const OptionPricingForm = () => {
       }
 
       const data: OptionData[] = await response.json();
-      console.log('Fetched data:', data);
+      console.log("Fetched data:", data);
       setOptionData(data);
-
     } catch (err) {
       setError(err.message);
     } finally {
@@ -86,11 +95,11 @@ const OptionPricingForm = () => {
   return (
     <Box
       sx={{
-        backgroundColor: 'white',
-        minHeight: '60vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        backgroundColor: "white",
+        minHeight: "60vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
       <Container maxWidth="sm">
@@ -101,11 +110,14 @@ const OptionPricingForm = () => {
 
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
-              <OptionTypeSelector value={formData.type} onChange={handleTypeChange} />
+              <OptionTypeSelector
+                value={formData.type}
+                onChange={handleTypeChange}
+              />
 
               {/* Dynamic TextFields excluding 'type' */}
               {Object.entries(formData)
-                .filter(([key]) => key !== 'type')
+                .filter(([key]) => key !== "type")
                 .map(([key, value]) => (
                   <Grid item xs={12} sm={6} key={key}>
                     <TextField
@@ -118,10 +130,10 @@ const OptionPricingForm = () => {
                       required
                       variant="outlined"
                       inputProps={
-                        key === 'continuousRfRate' ||
-                        key === 'volatility' ||
-                        key === 'expiryTime'
-                          ? { step: '0.01' }
+                        key === "continuousRfRate" ||
+                        key === "volatility" ||
+                        key === "expiryTime"
+                          ? { step: "0.01" }
                           : {}
                       }
                     />
@@ -155,13 +167,8 @@ const OptionPricingForm = () => {
           )}
 
           {optionData !== null && (
-            <Typography
-              variant="h6"
-              color="primary"
-              textAlign="center"
-              mt={3}
-            >
-              Option Price for {optionData[0].name.toUpperCase()}: <strong>${optionData[0].price.toFixed(2)}</strong>
+            <Typography variant="h6" color="primary" textAlign="center" mt={3}>
+              Option Price: <strong>${optionData[0].price.toFixed(2)}</strong>
             </Typography>
           )}
         </Paper>
@@ -169,5 +176,5 @@ const OptionPricingForm = () => {
     </Box>
   );
 };
-  
+
 export default OptionPricingForm;

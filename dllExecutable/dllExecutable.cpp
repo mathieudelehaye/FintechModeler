@@ -52,18 +52,17 @@ int main() {
     oss << "The calculated price for a Put with the Binomial method is: " << calculatedPrice02 << "\n";
     logToVSOutput(oss.str()); oss.str("");
     
-    const double market_price = 15.25;  // expected BS price: 16.44
+    const double market_price = 3.99;
     const double impliedVolatiliy = std::round(
         CalculateBSImpliedVolatility(
-            /*option_market_price=*/market_price,  
+            /*option_market_price=*/3.99,
             /*type=*/Call,
-            /*expiry_time=*/ 2,
-            /*period_number=*/ 8,
+            /*expiry_time=*/ 0.5,
             /*continuous_rf_rate=*/ 0.02,
             /*initial_share_price=*/ 100,
             /*strike_price=*/ 105
         ) * 100.0) / 100;
-    assert(impliedVolatiliy == 0.19);
+    assert(impliedVolatiliy == 0.21);
     oss.clear();
     oss << "The implied volatily for a Call with market price " << market_price << " is: " << impliedVolatiliy << "\n";
     logToVSOutput(oss.str());

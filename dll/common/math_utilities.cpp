@@ -41,8 +41,8 @@ namespace MathUtilities {
         return (f(x + dx) - f(x)) / dx;
     }
 
-    static double run_newton_step(const std::function<double(double)>& f, double x) {
-        return x - f(x) / differentiate(f, x);
+    static double run_newton_step(const std::function<double(double)>& f, double x, double dx) {
+        return x - f(x) / differentiate(f, x, dx);
     }
 
     double find_newton_root(const std::function<double(double)>& f, double x, double tol = 0.01) {
@@ -51,7 +51,7 @@ namespace MathUtilities {
 
         do {
             previous_root = current_root;
-            current_root = run_newton_step(f, x);
+            current_root = run_newton_step(f, x, 0.001);
         } while (std::abs(current_root - previous_root) > tol);
 
         return current_root;

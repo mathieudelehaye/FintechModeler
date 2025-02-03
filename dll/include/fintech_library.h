@@ -33,7 +33,6 @@ extern "C" {
         double option_market_price,
         OptionType type,
         double expiry_time,
-        int period_number,
         double continuous_rf_rate,
         double strike_price,
         double initial_share_price);

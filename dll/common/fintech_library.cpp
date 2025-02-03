@@ -85,14 +85,12 @@ double CalculateBSImpliedVolatility(
     double option_market_price,
     OptionType type,
     double expiry_time,
-    int period_number,
     double continuous_rf_rate,
-    double strike_price,
-    double initial_share_price) {
+    double initial_share_price,
+    double strike_price) {
 
     EuropeanOption::PricingModelParameters parameters{};
     parameters.expiry_time = expiry_time;
-    parameters.period_number = period_number;
     parameters.volatility = 0; // not used here
     parameters.continuous_rf_rate = continuous_rf_rate;
     parameters.initial_share_price = initial_share_price;

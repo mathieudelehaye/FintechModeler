@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Container, TextField, Button, Typography, Box, Paper, Grid, CircularProgress } from "@mui/material";
 
 import OptionTypeSelector  from './OptionTypeSelector .tsx';
@@ -37,8 +37,8 @@ const ShareVolatilityForm = () => {
     setFormData({ ...formData, [name]: parseFloat(value) });
   };
 
-   // Specific change handler for the radio buttons
-   const handleTypeChange = (e) => {
+  // Specific change handler for the radio buttons
+  const handleTypeChange = (e) => {
     setFormData(prevData => ({
       ...prevData,
       type: e.target.value,
@@ -52,10 +52,10 @@ const ShareVolatilityForm = () => {
 
     setLoading(true);
     setError("");
-    
+
     try {
       const url = 'https://backend20250103203956.azurewebsites.net/api/Options/volatility';
-      
+
       setOptionData(null);
 
       const response = await fetch(url, {
@@ -167,5 +167,5 @@ const ShareVolatilityForm = () => {
     </Box>
   );
 };
-  
+
 export default ShareVolatilityForm;

@@ -54,7 +54,7 @@ const ShareVolatilityForm = () => {
     setError("");
 
     try {
-      const url = 'https://backend20250103203956.azurewebsites.net/api/Options/volatility';
+      const url = "https://localhost:7200/api/Options/volatility";
 
       setOptionData(null);
 

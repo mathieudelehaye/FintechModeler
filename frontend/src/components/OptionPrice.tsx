@@ -65,8 +65,7 @@ const OptionPricingForm = () => {
     setError("");
 
     try {
-      const url =
-        "https://backend20250103203956.azurewebsites.net/api/Options/price";
+      const url = "https://localhost:7200/api/Options/price";
 
       setOptionData(null);
 

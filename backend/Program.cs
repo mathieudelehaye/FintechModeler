@@ -5,7 +5,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", builder =>
     {
-        builder.WithOrigins("https://nice-mud-07fe6b603.4.azurestaticapps.net") // Frontend Azure URL
+        builder.WithOrigins("http://localhost:3000") // avoid extra trailing slash
             .AllowAnyHeader()
             .AllowAnyMethod();
     });

@@ -109,7 +109,7 @@ const OptionPricingForm = () => {
           </Typography>
 
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={2}>
+            <Grid container spacing={2} textAlign="left">
               <OptionTypeSelector
                 value={formData.type}
                 onChange={handleTypeChange}

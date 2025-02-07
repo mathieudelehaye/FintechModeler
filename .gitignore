@@ -26,6 +26,9 @@ payload.json
 *.recipe
 *.swp
 
+*Old*/
+*old*/
+
 # Distribution / packaging
 .Python
 build/

@@ -1,7 +1,13 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Grid, Typography } from "@mui/material";
 
-const OptionTypeSelector = ({ value, onChange }) => {
+interface OptionTypeSelectorProps {
+    children?: ReactNode;
+    value: string;
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const OptionTypeSelector: React.FC<OptionTypeSelectorProps> = ({ value, onChange }) => {
     return (
         <Grid item xs={12} sx={{ marginBottom: 2 }}>
             <fieldset style={{ border: "none", padding: 0, margin: 0 }}>

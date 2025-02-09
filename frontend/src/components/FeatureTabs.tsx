@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { Box, Tab, Tabs, Typography } from "@mui/material";
 
 import OptionPricingForm from './OptionPrice.tsx';
 import ShareVolatilityForm from './ShareVolatility.tsx';
 
-const CustomTabPanel = ({ children, value, index }) => {
+interface FeatureTabsProps {
+  children?: ReactNode;
+  value: number;
+  index: number;
+}
+
+const CustomTabPanel: React.FC<FeatureTabsProps> = ({ children, value, index }) => {
   return (
     <div role="tabpanel" hidden={value !== index}>
       {value === index && (
@@ -19,7 +25,7 @@ const CustomTabPanel = ({ children, value, index }) => {
 const FeatureTabs = () => {
   const [value, setValue] = useState(0);
 
-  const handleChange = (event, newValue) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 

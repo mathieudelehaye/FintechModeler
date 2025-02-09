@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Container,
   TextField,
@@ -43,20 +43,20 @@ const OptionPricingForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: parseFloat(value) });
   };
 
   // Specific change handler for the radio buttons
-  const handleTypeChange = (e) => {
+  const handleTypeChange = (e: any) => {
     setFormData((prevData) => ({
       ...prevData,
       type: e.target.value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     console.log(formData);
@@ -84,8 +84,12 @@ const OptionPricingForm = () => {
       const data: OptionData[] = await response.json();
       console.log("Fetched data:", data);
       setOptionData(data);
-    } catch (err) {
-      setError(err.message);
+    } catch (err: any) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }

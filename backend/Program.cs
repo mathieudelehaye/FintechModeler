@@ -5,7 +5,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", builder =>
     {
-        builder.WithOrigins("http://localhost:3000") // avoid extra trailing slash
+        builder.WithOrigins("https://calm-beach-0abb2ea03.4.azurestaticapps.net") // avoid extra trailing slash
             .AllowAnyHeader()
             .AllowAnyMethod();
     });

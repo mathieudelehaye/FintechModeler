@@ -2,7 +2,7 @@
 
 ## Summary 
 
-The application is deployed on Azure: https://nice-mud-07fe6b603.4.azurestaticapps.net/
+The application is deployed on Azure: https://calm-beach-0abb2ea03.4.azurestaticapps.net
 
 It is a financial and fintech application developed with:
 - C++ (calculation and pricing)

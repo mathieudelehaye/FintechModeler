@@ -163,7 +163,7 @@ const ShareVolatilityForm = () => {
               textAlign="center"
               mt={3}
             >
-              Share Volatilty for {optionData[0].name.toUpperCase()}: <strong>{optionData[0].volatility.toFixed(2)} % annually</strong>
+              Share Volatilty: <strong>{optionData[0].volatility.toFixed(2)} % annually</strong>
             </Typography>
           )}
         </Paper>

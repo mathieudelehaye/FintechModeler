@@ -14,7 +14,7 @@ const CustomTabPanel: React.FC<FeatureTabsProps> = ({ children, value, index }) 
   return (
     <div role="tabpanel" hidden={value !== index}>
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 5 }}>
           <Typography>{children}</Typography>
         </Box>
       )}
@@ -35,11 +35,10 @@ const FeatureTabs = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        height: "85vh",
         width: "100%",
       }}
     >
-      <Box sx={{ width: "75%", bgcolor: "background.paper", p: 3, borderRadius: 2 }}>
+      <Box sx={{ bgcolor: "background.paper", p: 3, borderRadius: 2 }}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             <Tab label="Price" />

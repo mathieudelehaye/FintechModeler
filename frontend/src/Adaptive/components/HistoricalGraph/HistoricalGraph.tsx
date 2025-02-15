@@ -44,6 +44,7 @@ const [useHistoricalPath, historicalGraph$] = symbolBind((symbol: string) =>
       return toSvgPath(curveBasis)(scales)
     }),
   ),
+  null
 )
 
 const LineChartWrapper = styled.div<{ showTimer?: boolean }>`

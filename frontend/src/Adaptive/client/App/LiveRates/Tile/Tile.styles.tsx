@@ -1,6 +1,7 @@
 import styled from "styled-components"
 
 import { DeliveryDate, HeaderAction } from "./Header/TileHeader"
+import { border } from "polished"
 
 export const PriceControlWrapper = styled.div<{ isAnalyticsView: boolean }>`
   flex: 1;
@@ -24,7 +25,7 @@ export const PriceControlsStyle = styled("div")<{
   grid-template-areas:
   "movement sell"
   "movement buy";
-  gap: ${theme.newTheme.spacing.xxs};
+  gap: 1;
   `
       : `
       grid-template-columns: 37% 26% 37%;
@@ -58,7 +59,8 @@ export const PanelItem = styled.div<{ shouldMoveDate: boolean }>`
 
     ${DeliveryDate} {
       margin-right: ${({ shouldMoveDate, theme }) =>
-        shouldMoveDate ? theme.newTheme.spacing["2xl"] : "0"};
+        "0"
+        // shouldMoveDate ? theme.newTheme.spacing["2xl"] : "0"};
     }
   }
 `
@@ -71,7 +73,7 @@ export const Body = styled.div<{
   flex: 1;
   flex-direction: ${isAnalyticsView ? "row" : "column"};
   align-items: ${isAnalyticsView ? "center" : null};
-  padding: ${theme.newTheme.spacing.xs} 0;
+  padding: 0;
   min-height: ${isAnalyticsView ? "136px" : "0"};
 `,
 )
@@ -87,15 +89,11 @@ export const Main = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  background-color: ${({ theme }) =>
-    theme.newTheme.color["Colors/Background/bg-primary"]};
-  border: 2px solid
-    ${({ theme }) => theme.newTheme.color["Colors/Background/bg-secondary"]};
-
+  background-color: white; 
+  border: 2px solid black
   &:hover,
   .tile-hover & {
-    color: ${({ theme }) =>
-      theme.newTheme.color["Colors/Text/text-brand-primary (900)"]};
+    color: blue
     box-shadow: ${({ theme }) =>
       theme.name === "light" ? "0 0 10px 0 rgba(0, 0, 0, 0.1)" : "none"};
   }

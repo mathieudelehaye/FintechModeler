@@ -28,7 +28,7 @@ function App() {
           mt: 1, 
         }}
       >
-        <Typography variant="body2" color="textSecondary">
+        <Typography component="div" variant="body2" color="textSecondary">
           &copy; Mathieu Delehaye 2025
         </Typography>
       </Box>

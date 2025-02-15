@@ -39,7 +39,7 @@ export const [useFilteredCurrencyPairs, filteredCurrencyPairs$] = bind(
 
     }),
   ),
-  [] // Provide an initial value
+  ["EURAUD"] // Provide an initial value
 )
 
 export const Tiles = () => {
@@ -56,20 +56,18 @@ export const Tiles = () => {
     }
   }, [tearOutEntry])
 
-  console.log(currencyPairs);
-
   let currencyPair = currencyPairs[0];
+  console.log('currencyPairs ' + currencyPairs);
 
   return (
-    <GridLayout role="region" aria-label="Lives Rates Tiles">
-      {currencyPairs.map((currencyPair) => (
-        // <Tile
-        //   key={currencyPair.symbol}
-        //   currencyPair={currencyPair}
-        //   isAnalytics={selectedView === TileView.Analytics}
-        // />
-        <div>Hello</div>
-      ))}
-    </GridLayout>
+    // <GridLayout role="region" aria-label="Lives Rates Tiles">
+    //   {currencyPairs.map((currencyPair) => (
+        <Tile
+          key={currencyPair.symbol}
+          currencyPair={currencyPair}
+          isAnalytics={selectedView === TileView.Analytics}
+        />
+    //   ))}
+    // </GridLayout>
   )
 }

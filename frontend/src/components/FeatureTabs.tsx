@@ -1,8 +1,10 @@
 import { ReactNode, useState } from 'react';
 import { Box, Tab, Tabs, Typography } from "@mui/material";
 
-import OptionPricingForm from './OptionPrice.tsx';
-import ShareVolatilityForm from './ShareVolatility.tsx';
+import { Tiles } from "@/client/App/LiveRates/Tiles";
+
+import OptionPricingForm from './OptionPrice';
+import ShareVolatilityForm from './ShareVolatility';
 
 interface FeatureTabsProps {
   children?: ReactNode;
@@ -15,7 +17,7 @@ const CustomTabPanel: React.FC<FeatureTabsProps> = ({ children, value, index }) 
     <div role="tabpanel" hidden={value !== index}>
       {value === index && (
         <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
+          <Typography component="div">{children}</Typography>
         </Box>
       )}
     </div>
@@ -44,6 +46,7 @@ const FeatureTabs = () => {
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             <Tab label="Price" />
             <Tab label="Volatility" />
+            <Tab label="Various" />
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
@@ -52,6 +55,11 @@ const FeatureTabs = () => {
         <CustomTabPanel value={value} index={1}>
           <ShareVolatilityForm />
         </CustomTabPanel>
+        <CustomTabPanel value={value} index={2}>
+          <ShareVolatilityForm />
+          {/* <Tiles /> */}
+        </CustomTabPanel>
+        
       </Box>
     </Box>
   );

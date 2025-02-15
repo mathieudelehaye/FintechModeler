@@ -20,12 +20,10 @@ export const DeliveryDate = styled.div`
 const HeaderWrapper = styled(FlexBox)`
   position: relative;
   justify-content: space-between;
-  background-color: ${({ theme }) =>
-    theme.newTheme.color["Colors/Background/bg-secondary"]};
-  padding: ${({ theme }) =>
-    `${theme.newTheme.spacing.md} ${theme.newTheme.spacing["3xl"]} `};
-  padding-left: ${({ theme }) => theme.newTheme.spacing.md};
-  padding-right: ${({ theme }) => theme.newTheme.spacing.md};
+  background-color: white
+  padding: 3
+  padding-left: 2
+  padding-right: 2
 `
 export const HeaderAction = styled.button`
   position: absolute;
@@ -35,14 +33,12 @@ export const HeaderAction = styled.button`
   transition: opacity 0.2s;
 
   svg {
-    fill: ${({ theme }) =>
-      theme.newTheme.color["Colors/Foreground/fg-quinary (400)"]};
+    fill: blue
   }
 
   &:hover {
     svg {
-      fill: ${({ theme }) =>
-        theme.newTheme.color["Colors/Foreground/fg-quinary_hover"]};
+      fill: green
     }
     .tear-out-hover-state {
       fill: #5f94f5;
@@ -57,6 +53,7 @@ export const [useDate, header$] = bind((symbol: string) =>
         `SPT (${format(new Date(valueDate), "dd MMM").toUpperCase()})`,
     ),
   ),
+  null
 )
 
 type HeaderProps = {

@@ -56,8 +56,8 @@ const FeatureTabs = () => {
           <ShareVolatilityForm />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
-          <ShareVolatilityForm />
-          {/* <Tiles /> */}
+          <Tiles />
+          {/* <ShareVolatilityForm /> */}
         </CustomTabPanel>
         
       </Box>

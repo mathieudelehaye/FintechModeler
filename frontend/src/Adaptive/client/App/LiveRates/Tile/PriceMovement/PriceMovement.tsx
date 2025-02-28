@@ -21,7 +21,7 @@ const [usePriceMovementData, priceMovement$] = symbolBind((symbol: string) =>
       return { spread, movementType, symbol }
     }),
     distinctUntilChanged(equals),
-  )
+  ),
 )
 export { priceMovement$ }
 

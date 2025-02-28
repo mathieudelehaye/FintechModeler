@@ -53,7 +53,6 @@ const [useIsSymbolDataStale] = symbolBind(
     getIsSymbolDataStale$,
     map((isStale) => (isStale ? SUSPENSE : null)),
   ),
-  null // Initial value provided
 )
 
 const Tile = ({ isAnalytics }: { isAnalytics: boolean }) => {

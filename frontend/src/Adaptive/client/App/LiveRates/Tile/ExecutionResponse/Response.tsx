@@ -78,9 +78,9 @@ const getExecutionMessage = (
     <>
       {`You ${pastTenseDirection[direction]} `}
       <BackgroundColored>{`${base} ${formatNumber(notional)}`}</BackgroundColored>
-      {` at a rate mde of `}
+      {` at a rate of `}
       <BackgroundColored>{`${spotRate}`}</BackgroundColored>
-      {` fssor `}
+      {` for `}
       <BoldItalicSpan>
         {terms} {formatNumber(notional * spotRate)}
       </BoldItalicSpan>

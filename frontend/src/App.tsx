@@ -3,6 +3,7 @@ import './App.css';
 import { Box, Container, Typography } from "@mui/material";
 
 import FeatureTabs from './components/FeatureTabs.tsx';
+// import { FxPage } from '@/client/Web/FxPage';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       {/* Main Content */}
       <Container>
         <FeatureTabs />
+        {/* <FxPage /> */}
       </Container>
 
       {/* Footer */}

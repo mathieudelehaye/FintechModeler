@@ -42,6 +42,8 @@ const isHydraConnectionActive = (status: ConnectionStatus) => {
 
 // Connect to Hydra gateway and store the disconnect for idle timeout handling
 export const initConnection = () => {
+  console.log("mde import.meta.env.VITE_HYDRA_URL = "+import.meta.env.VITE_HYDRA_URL)
+
   const { connection } = connectToTradingGateway({
     url: import.meta.env.VITE_HYDRA_URL,
     interceptor: noop,

@@ -2,7 +2,7 @@ import { bind } from "@react-rxjs/core"
 import { combineKeys } from "@react-rxjs/utils"
 import { useEffect } from "react"
 import { combineLatest, merge } from "rxjs"
-import { count, map } from "rxjs/operators"
+import { map } from "rxjs/operators"
 
 import { GridLayout } from "@/client/components/layout/GridLayout"
 import { currencyPairs$ } from "@/services/currencyPairs"
@@ -12,12 +12,10 @@ import { getInitView, TileView, useSelectedTileView } from "./selectedView"
 import { Tile, tile$ } from "./Tile"
 import { handleTearOut } from "./Tile/TearOut/handleTearOut"
 import { tearOutState$, useTearOutEntry } from "./Tile/TearOut/state"
-import { ThemeName, themes } from "@/client/theme"
 
 export const [useFilteredCurrencyPairs, filteredCurrencyPairs$] = bind(
   combineLatest([currencyPairs$, selectedCurrency$, tearOutState$]).pipe(
     map(([currencyPairs, selectedCurrency, tearOutState]) => {
-
       const result = { ...currencyPairs }
       for (const symbol of Object.keys(result)) {
         if (tearOutState[symbol]) {
@@ -36,10 +34,13 @@ export const [useFilteredCurrencyPairs, filteredCurrencyPairs$] = bind(
         })
 
       return Object.values(result)
-
     }),
   ),
-  ["EURAUD"] // Provide an initial value
+)
+
+export const tiles$ = merge(
+  filteredCurrencyPairs$,
+  combineKeys(currencyPairs$.pipe(map(Object.keys)), tile$),
 )
 
 export const Tiles = () => {
@@ -56,8 +57,9 @@ export const Tiles = () => {
     }
   }, [tearOutEntry])
 
+  console.log(currencyPairs);
+
   let currencyPair = currencyPairs[0];
-  console.log('currencyPairs ' + currencyPairs);
 
   return (
     // <GridLayout role="region" aria-label="Lives Rates Tiles">

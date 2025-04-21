@@ -31,6 +31,8 @@ payload.json
 
 project_structure*
 
+z-arv/
+
 # Distribution / packaging
 .Python
 build/

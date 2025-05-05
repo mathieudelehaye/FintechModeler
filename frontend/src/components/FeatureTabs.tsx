@@ -1,8 +1,8 @@
 import { ReactNode, useState } from 'react';
 import { Box, Tab, Tabs, Typography } from "@mui/material";
 
-import OptionPricingForm from './OptionPrice.tsx';
-import ShareVolatilityForm from './ShareVolatility.tsx';
+import OptionPricingForm from './OptionPrice';
+import ShareVolatilityForm from './ShareVolatility';
 
 interface FeatureTabsProps {
   children?: ReactNode;
@@ -15,7 +15,7 @@ const CustomTabPanel: React.FC<FeatureTabsProps> = ({ children, value, index }) 
     <div role="tabpanel" hidden={value !== index}>
       {value === index && (
         <Box sx={{ p: 5 }}>
-          <Typography>{children}</Typography>
+          <Typography component="div">{children}</Typography>
         </Box>
       )}
     </div>

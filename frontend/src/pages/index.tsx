@@ -1,10 +1,7 @@
-import './App.css';
+import { Box, Container, Typography } from '@mui/material';
+import FeatureTabs from '../components/FeatureTabs';
 
-import { Box, Container, Typography } from "@mui/material";
-
-import FeatureTabs from './components/FeatureTabs.tsx';
-
-function App() {
+export default function Home() {
   return (
     <Box
       sx={{
@@ -25,7 +22,7 @@ function App() {
           textAlign: 'center',
           py: 5,
           backgroundColor: '#ffffff',
-          mt: 1, 
+          mt: 1,
         }}
       >
         <Typography variant="body2" color="textSecondary">
@@ -35,5 +32,3 @@ function App() {
     </Box>
   );
 }
-
-export default App;

@@ -1,7 +1,14 @@
 import { useState } from 'react';
-import { Container, TextField, Button, Typography, Box, Paper, Grid, CircularProgress } from "@mui/material";
-
-import OptionTypeSelector  from './OptionTypeSelector .tsx';
+import {
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Paper,
+  CircularProgress,
+} from "@mui/material";
+import OptionTypeSelector from './OptionTypeSelector';
 
 interface OptionData {
   id: number;
@@ -13,7 +20,7 @@ interface OptionData {
 const fieldLabels: Record<string, string> = {
   expiryTime: "Expiry Time (Years)",
   initialOptionPrice: "Initial Option Price ($)",
-  continuousRfRate: "Continous Risk-Free Rate (%)",
+  continuousRfRate: "Continuous Risk-Free Rate (%)",
   initialSharePrice: "Initial Share Price ($)",
   strikePrice: "Strike Price ($)",
 };
@@ -27,7 +34,6 @@ const ShareVolatilityForm = () => {
     initialSharePrice: 50,
     strikePrice: 60,
   });
-
   const [optionData, setOptionData] = useState<OptionData[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -37,49 +43,29 @@ const ShareVolatilityForm = () => {
     setFormData({ ...formData, [name]: parseFloat(value) });
   };
 
-  // Specific change handler for the radio buttons
   const handleTypeChange = (e: any) => {
-    setFormData(prevData => ({
-      ...prevData,
-      type: e.target.value,
-    }));
+    setFormData(prev => ({ ...prev, type: e.target.value }));
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-
-    console.log(formData);
-
     setLoading(true);
     setError("");
-
+    setOptionData(null);
     try {
-      const url = 'https://backend20250103203956.azurewebsites.net/api/Options/volatility';
-
-      setOptionData(null);
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch option price.");
-      }
-
-      const data: OptionData[] = await response.json();
-      console.log('Fetched data:', data);
+      const res = await fetch(
+        "https://backend20250103203956.azurewebsites.net/api/Options/volatility",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to fetch implied volatility.");
+      const data: OptionData[] = await res.json();
       setOptionData(data);
-
     } catch (err: any) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unexpected error occurred.");
-      }
+      setError(err.message || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
@@ -96,46 +82,54 @@ const ShareVolatilityForm = () => {
       }}
     >
       <Container maxWidth="sm">
-        <Paper elevation={3} sx={{ padding: 4, borderRadius: 2 }}>
-          <Typography variant="h5" gutterBottom textAlign="center">
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+          <Typography variant="h5" textAlign="center" gutterBottom>
             Implied Volatility Calculator
           </Typography>
 
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={2} textAlign="left">
-              <OptionTypeSelector value={formData.type} onChange={handleTypeChange} />
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                gap: 2,
+                textAlign: 'left',
+              }}
+            >
+              {/* span both columns */}
+              <Box gridColumn="1 / -1" sx={{ mb: 2 }}>
+                <OptionTypeSelector
+                  value={formData.type}
+                  onChange={handleTypeChange}
+                />
+              </Box>
 
-              {/* Dynamic TextFields excluding 'type' */}
               {Object.entries(formData)
                 .filter(([key]) => key !== 'type')
                 .map(([key, value]) => (
-                  <Grid item xs={12} sm={6} key={key}>
-                    <TextField
-                      fullWidth
-                      label={fieldLabels[key] || key}
-                      name={key}
-                      value={value}
-                      onChange={handleChange}
-                      type="number"
-                      required
-                      variant="outlined"
-                      inputProps={
-                        key === 'continuousRfRate' ||
-                        key === 'volatility' ||
-                        key === 'expiryTime'
-                          ? { step: '0.01' }
-                          : {}
-                      }
-                    />
-                  </Grid>
+                  <TextField
+                    key={key}
+                    fullWidth
+                    label={fieldLabels[key] || key}
+                    name={key}
+                    value={value}
+                    onChange={handleChange}
+                    type="number"
+                    required
+                    variant="outlined"
+                    inputProps={
+                      ['continuousRfRate', 'volatility', 'expiryTime'].includes(key)
+                        ? { step: '0.01' }
+                        : {}
+                    }
+                  />
                 ))}
-            </Grid>
+            </Box>
 
             <Box textAlign="center" mt={3}>
               <Button
                 type="submit"
                 variant="contained"
-                color="primary"
                 size="large"
                 disabled={loading}
               >
@@ -156,14 +150,10 @@ const ShareVolatilityForm = () => {
             </Typography>
           )}
 
-          {optionData !== null && (
-            <Typography
-              variant="h6"
-              color="primary"
-              textAlign="center"
-              mt={3}
-            >
-              Share Volatilty: <strong>{optionData[0].volatility.toFixed(2)} % annually</strong>
+          {optionData && optionData.length > 0 && (
+            <Typography variant="h6" color="primary" textAlign="center" mt={3}>
+              Share Volatility:{" "}
+              <strong>{optionData[0].volatility.toFixed(2)}% annually</strong>
             </Typography>
           )}
         </Paper>

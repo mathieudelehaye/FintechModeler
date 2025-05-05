@@ -1,4 +1,5 @@
-import { useState } from 'react';
+// src/components/ShareVolatilityForm.tsx
+import React, { useState } from 'react';
 import {
   Container,
   TextField,
@@ -25,7 +26,7 @@ const fieldLabels: Record<string, string> = {
   strikePrice: "Strike Price ($)",
 };
 
-const ShareVolatilityForm = () => {
+const ShareVolatilityForm: React.FC = () => {
   const [formData, setFormData] = useState({
     initialOptionPrice: 15,
     type: "call",
@@ -38,16 +39,16 @@ const ShareVolatilityForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: parseFloat(value) });
   };
 
-  const handleTypeChange = (e: any) => {
+  const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, type: e.target.value }));
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -64,8 +65,9 @@ const ShareVolatilityForm = () => {
       if (!res.ok) throw new Error("Failed to fetch implied volatility.");
       const data: OptionData[] = await res.json();
       setOptionData(data);
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+    } catch (err) {
+      if (err instanceof Error) setError(err.message);
+      else setError("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
@@ -105,7 +107,7 @@ const ShareVolatilityForm = () => {
               </Box>
 
               {Object.entries(formData)
-                .filter(([key]) => key !== 'type')
+                .filter(([k]) => k !== 'type')
                 .map(([key, value]) => (
                   <TextField
                     key={key}
@@ -127,12 +129,7 @@ const ShareVolatilityForm = () => {
             </Box>
 
             <Box textAlign="center" mt={3}>
-              <Button
-                type="submit"
-                variant="contained"
-                size="large"
-                disabled={loading}
-              >
+              <Button type="submit" variant="contained" size="large" disabled={loading}>
                 Calculate Volatility
               </Button>
             </Box>
@@ -152,8 +149,7 @@ const ShareVolatilityForm = () => {
 
           {optionData && optionData.length > 0 && (
             <Typography variant="h6" color="primary" textAlign="center" mt={3}>
-              Share Volatility:{" "}
-              <strong>{optionData[0].volatility.toFixed(2)}% annually</strong>
+              Share Volatility: <strong>{optionData[0].volatility.toFixed(2)}% annually</strong>
             </Typography>
           )}
         </Paper>

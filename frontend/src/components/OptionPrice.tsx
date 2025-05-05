@@ -1,4 +1,5 @@
-import { useState } from "react";
+// src/components/OptionPrice.tsx
+import React, { useState } from "react";
 import {
   Container,
   TextField,
@@ -8,7 +9,7 @@ import {
   Paper,
   CircularProgress,
 } from "@mui/material";
-import OptionTypeSelector from './OptionTypeSelector';
+import OptionTypeSelector from "./OptionTypeSelector";
 
 interface OptionData {
   id: number;
@@ -26,7 +27,7 @@ const fieldLabels: Record<string, string> = {
   strikePrice: "Strike Price ($)",
 };
 
-const OptionPricingForm = () => {
+const OptionPricingForm: React.FC = () => {
   const [formData, setFormData] = useState({
     type: "call",
     expiryTime: 2,
@@ -40,16 +41,16 @@ const OptionPricingForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: parseFloat(value) });
   };
 
-  const handleTypeChange = (e: any) => {
+  const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, type: e.target.value }));
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -66,8 +67,9 @@ const OptionPricingForm = () => {
       if (!res.ok) throw new Error("Failed to fetch option price.");
       const data: OptionData[] = await res.json();
       setOptionData(data);
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+    } catch (err) {
+      if (err instanceof Error) setError(err.message);
+      else setError("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
@@ -103,7 +105,6 @@ const OptionPricingForm = () => {
                 textAlign: "left",
               }}
             >
-              {/* full-width selector */}
               <Box gridColumn="1 / -1" sx={{ mb: 2 }}>
                 <OptionTypeSelector
                   value={formData.type}
@@ -111,7 +112,6 @@ const OptionPricingForm = () => {
                 />
               </Box>
 
-              {/* dynamic numeric fields */}
               {Object.entries(formData)
                 .filter(([k]) => k !== "type")
                 .map(([key, value]) => (
@@ -137,12 +137,7 @@ const OptionPricingForm = () => {
             </Box>
 
             <Box textAlign="center" mt={3}>
-              <Button
-                type="submit"
-                variant="contained"
-                size="large"
-                disabled={loading}
-              >
+              <Button type="submit" variant="contained" size="large" disabled={loading}>
                 Calculate Price
               </Button>
             </Box>

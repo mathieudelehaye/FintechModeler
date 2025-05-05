@@ -11,54 +11,47 @@ on:
 
 jobs:
   build_and_deploy_job:
+    # only run on push or on pull_request until it’s closed
     if: |
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
-    name: Build and Deploy
+    name: Build and Deploy Job
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
           lfs: false
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-
-      - name: Install Dependencies
-        run: |
-          cd frontend
-          npm ci
-
-      - name: Build & Export Next.js
-        run: |
-          cd frontend
-          npm run build
-          npm run export
-        working-directory: ./frontend
-
-      - name: Deploy to Azure Static Web Apps
-        id: swa
+      - name: Build And Deploy
+        id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
+          # your API token secret
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_BEACH_0ABB2EA03 }}
-          repo_token:                        ${{ secrets.GITHUB_TOKEN }}
-          action:                            "upload"
-          app_location:                      "frontend"
-          api_location:                      ""             # no Azure Functions in this repo
-          app_build_command:                 "npm run build && npm run export"
-          output_location:                   "frontend/out" # Next.js static export folder
-          is_static_export:                  true
+          # for PR comments
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+
+          # Point at your frontend folder _inside_ the repo:
+          app_location: frontend
+
+          # no API project in this repo
+          api_location: ''
+
+          # if you do `next export` uncomment this:
+          # output_location: out
+
+          # otherwise leave it blank for the default Next.js SSR build
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
-    name: Close Pull Request
+    name: Close Pull Request Job
     steps:
       - name: Close Pull Request
+        id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_BEACH_0ABB2EA03 }}
-          action: "close"
+          action: close

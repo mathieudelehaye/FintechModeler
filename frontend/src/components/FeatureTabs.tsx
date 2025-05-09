@@ -1,59 +1,29 @@
-import { ReactNode, useState } from 'react';
-import { Box, Tab, Tabs, Typography } from "@mui/material";
-
+import { useState } from 'react';
+import { Box, Tab, Tabs, Paper } from '@mui/material';
 import OptionPricingForm from './OptionPrice';
 import ShareVolatilityForm from './ShareVolatility';
+import CashFlowManager from './CashFlowManager';
 
-interface FeatureTabsProps {
-  children?: ReactNode;
-  value: number;
-  index: number;
-}
-
-const CustomTabPanel: React.FC<FeatureTabsProps> = ({ children, value, index }) => {
+export default function FeatureTabs() {
+  const [active, setActive] = useState(0);
   return (
-    <div role="tabpanel" hidden={value !== index}>
-      {value === index && (
-        <Box sx={{ p: 5 }}>
-          <Typography component="div">{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
-};
-
-const FeatureTabs = () => {
-  const [value, setValue] = useState(0);
-
-  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
-
-  return (    
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        width: "100%",
-      }}
-    >
-      <Box sx={{ bgcolor: "background.paper", p: 3, borderRadius: 2 }}>
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-            <Tab label="Price" />
-            <Tab label="Volatility" />
-          </Tabs>
-        </Box>
-        <CustomTabPanel value={value} index={0}>
-          <OptionPricingForm />
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          <ShareVolatilityForm />
-        </CustomTabPanel>
+    <Paper elevation={3} sx={{ width: '100%', borderRadius: 2 }}>
+      <Tabs
+        value={active}
+        onChange={(_, v) => setActive(v)}
+        centered
+        textColor="primary"
+        indicatorColor="primary"
+      >
+        <Tab label="Price" />
+        <Tab label="Volatility" />
+        <Tab label="Immunisation" />
+      </Tabs>
+      <Box sx={{ p: 3 }}>
+        {active === 0 && <OptionPricingForm />}
+        {active === 1 && <ShareVolatilityForm />}
+        {active === 2 && <CashFlowManager />}
       </Box>
-    </Box>
+    </Paper>
   );
 }
-
-export default FeatureTabs;

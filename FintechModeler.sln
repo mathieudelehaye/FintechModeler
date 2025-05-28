@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "backend", "backend\backend.csproj", "{85C76754-FA56-485D-A8E9-E6BC3C19DD97}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dll", "dll\dll.vcxproj", "{E5F61804-6D3A-428D-88EB-6EC3CEE0F40D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dllExecutable", "dllExecutable\dllExecutable.vcxproj", "{6C9E50BF-F41B-4ABC-84A2-CFE9D3685FF3}"
@@ -19,18 +17,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{85C76754-FA56-485D-A8E9-E6BC3C19DD97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{85C76754-FA56-485D-A8E9-E6BC3C19DD97}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{85C76754-FA56-485D-A8E9-E6BC3C19DD97}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{85C76754-FA56-485D-A8E9-E6BC3C19DD97}.Debug|x64.Build.0 = Debug|Any CPU
-		{85C76754-FA56-485D-A8E9-E6BC3C19DD97}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{85C76754-FA56-485D-A8E9-E6BC3C19DD97}.Debug|x86.Build.0 = Debug|Any CPU
-		{85C76754-FA56-485D-A8E9-E6BC3C19DD97}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{85C76754-FA56-485D-A8E9-E6BC3C19DD97}.Release|Any CPU.Build.0 = Release|Any CPU
-		{85C76754-FA56-485D-A8E9-E6BC3C19DD97}.Release|x64.ActiveCfg = Release|Any CPU
-		{85C76754-FA56-485D-A8E9-E6BC3C19DD97}.Release|x64.Build.0 = Release|Any CPU
-		{85C76754-FA56-485D-A8E9-E6BC3C19DD97}.Release|x86.ActiveCfg = Release|Any CPU
-		{85C76754-FA56-485D-A8E9-E6BC3C19DD97}.Release|x86.Build.0 = Release|Any CPU
 		{E5F61804-6D3A-428D-88EB-6EC3CEE0F40D}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{E5F61804-6D3A-428D-88EB-6EC3CEE0F40D}.Debug|Any CPU.Build.0 = Debug|x64
 		{E5F61804-6D3A-428D-88EB-6EC3CEE0F40D}.Debug|x64.ActiveCfg = Debug|x64

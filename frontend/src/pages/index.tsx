@@ -3,30 +3,13 @@ import FeatureTabs from '../components/FeatureTabs';
 
 export default function Home() {
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-        backgroundColor: 'white',
-      }}
-    >
-      {/* Main Content */}
-      <Container>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default' }}>
+      <Container sx={{ flexGrow: 1, py: 4 }}>
         <FeatureTabs />
       </Container>
-
-      {/* Footer */}
-      <Box
-        sx={{
-          textAlign: 'center',
-          py: 5,
-          backgroundColor: '#ffffff',
-          mt: 1,
-        }}
-      >
+      <Box sx={{ textAlign: 'center', py: 2, bgcolor: 'background.paper' }}>
         <Typography variant="body2" color="textSecondary">
-          &copy; Mathieu Delehaye 2025
+          © Mathieu Delehaye 2025
         </Typography>
       </Box>
     </Box>

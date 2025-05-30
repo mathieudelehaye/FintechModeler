@@ -7,7 +7,7 @@
  *
  * FintechModeler: A Python and C++ library for fintech modeling.
  *
- * Copyright © 2023 Mathieu Delehaye. All rights reserved.
+ * Copyright ï¿½ 2023 Mathieu Delehaye. All rights reserved.
  *
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
@@ -89,8 +89,6 @@ public:
      * @return The standard deviation on the window.
      */
     double calculateRollingStandardDeviation() const;
-
-    static void hello();
 
 private:
     /**

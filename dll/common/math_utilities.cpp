@@ -12,9 +12,38 @@ namespace MathUtilities {
         return result;
     }
 
-    unsigned long long binomial_coef(unsigned int N, unsigned int r) {
-        const unsigned long long result = factorial(N) / (factorial(r) * factorial(N - r));
+    // Helper function for stable binomial coefficient calculation
+    static double log_factorial(unsigned int n) {
+        double result = 0.0;
+        for (unsigned int i = 2; i <= n; ++i) {
+            result += std::log(static_cast<double>(i));
+        }
         return result;
+    }
+
+    unsigned long long binomial_coef(unsigned int n, unsigned int k) {
+        if (k > n/2) {
+            k = n - k;
+        }
+        
+        if (k == 0) {
+            return 1;
+        }
+        
+        if (k == 1) {
+            return n;
+        }
+
+        if (n <= 20) {
+            unsigned long long result = 1;
+            for (unsigned int i = 1; i <= k; ++i) {
+                result = result * (n - k + i) / i;
+            }
+            return result;
+        }
+
+        double log_result = log_factorial(n) - log_factorial(k) - log_factorial(n - k);
+        return std::round(std::exp(log_result));
     }
 
     double int_power(double base, int exponent) {
@@ -22,11 +51,22 @@ namespace MathUtilities {
             return 1;
         }
 
-        double result = base;
-        for (int i = 0; i < exponent - 1; ++i) {
-            result *= base;
+        bool is_negative = exponent < 0;
+        int abs_exponent = std::abs(exponent);
+        
+        double result = 1.0;
+        double current_power = base;
+        int remaining_power = abs_exponent;
+        
+        while (remaining_power > 0) {
+            if (remaining_power & 1) {
+                result *= current_power;
+            }
+            current_power *= current_power;
+            remaining_power >>= 1;
         }
-        return result;
+
+        return is_negative ? 1.0 / result : result;
     }
 
     double N(double z) {
@@ -45,7 +85,7 @@ namespace MathUtilities {
         return x - f(x) / differentiate(f, x, dx);
     }
 
-    double find_newton_root(const std::function<double(double)>& f, double x, double tol = 0.01) {
+    double find_newton_root(const std::function<double(double)>& f, double x, double tol) {
         double previous_root = 0.0;
         double current_root = x;
 

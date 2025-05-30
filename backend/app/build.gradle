@@ -12,18 +12,29 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    // Use a dedicated configuration for development-only dependencies
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+}
+
 dependencies {
-    // Spring Boot
+    // Spring Boot starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
 
-    // H2 in‐memory database for testing
+    // In-memory database
     runtimeOnly 'com.h2database:h2'
 
-    // JNA for your native DLL interop
+    // Native interop via JNA
     implementation 'net.java.dev.jna:jna:5.13.0'
     implementation 'net.java.dev.jna:jna-platform:5.13.0'
+
+    // DevTools for automatic restart
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -31,4 +42,20 @@ dependencies {
 
 tasks.named('bootRun') {
     mainClass.set('org.example.fintechmodeler.FintechModelerApplication')
+}
+
+def nativeDir = file("$projectDir/../dll/x64/Release")
+
+task copyNativeLib(type: Copy) {
+    from nativeDir
+    include "fintech_model.dll"
+    into("$buildDir/resources/main/win32-x86-64")
+}
+
+processResources.dependsOn copyNativeLib
+
+bootJar {
+    from(nativeDir) {
+        into 'BOOT-INF/classes/win32-x86-64'
+    }
 }

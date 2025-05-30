@@ -4,11 +4,12 @@
 package org.example;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import org.springframework.boot.test.context.SpringBootTest;
 
-class AppTest {
-    @Test void appHasAGreeting() {
-        App classUnderTest = new App();
-        assertNotNull(classUnderTest.getGreeting(), "app should have a greeting");
+@SpringBootTest
+class FintechModelerApplicationTests {
+    @Test
+    void contextLoads() {
+        // Basic test to ensure Spring context loads
     }
 }

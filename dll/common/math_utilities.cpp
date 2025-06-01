@@ -43,7 +43,7 @@ namespace MathUtilities {
         }
 
         double log_result = log_factorial(n) - log_factorial(k) - log_factorial(n - k);
-        return std::round(std::exp(log_result));
+        return static_cast<unsigned long long>(std::round(std::exp(log_result)));
     }
 
     double int_power(double base, int exponent) {
@@ -74,7 +74,8 @@ namespace MathUtilities {
     }
     
     double n(double z) {
-        return differentiate(N, z);
+        const double SQRT_2PI = 2.506628274631000502415765284811;  // sqrt(2*pi)
+        return std::exp(-0.5 * z * z) / SQRT_2PI;
     }
 
     double differentiate(const std::function<double(double)>& f, double x, double dx) {
@@ -82,17 +83,44 @@ namespace MathUtilities {
     }
 
     static double run_newton_step(const std::function<double(double)>& f, double x, double dx) {
-        return x - f(x) / differentiate(f, x, dx);
+        double derivative = differentiate(f, x, dx);
+        if (std::abs(derivative) < 1e-10) {  // Avoid division by very small numbers
+            return x;
+        }
+        return x - f(x) / derivative;
     }
 
     double find_newton_root(const std::function<double(double)>& f, double x, double tol) {
-        double previous_root = 0.0;
-        double current_root = x;
+        const int MAX_ITERATIONS = 100;
+        const double DX = 1e-7;  // Smaller step size for more precise derivatives
+        const double MIN_DIFF = 1e-10;  // Minimum function value difference
 
-        do {
-            previous_root = current_root;
-            current_root = run_newton_step(f, x, 0.001);
-        } while (std::abs(current_root - previous_root) > tol);
+        double current_root = x;
+        int iterations = 0;
+
+        while (iterations < MAX_ITERATIONS) {
+            double f_value = f(current_root);
+            
+            // Check if we're close enough to the root
+            if (std::abs(f_value) < tol) {
+                break;
+            }
+
+            double next_root = run_newton_step(f, current_root, DX);
+            
+            // Check for convergence
+            if (std::abs(next_root - current_root) < MIN_DIFF) {
+                break;
+            }
+
+            // Check for divergence
+            if (!std::isfinite(next_root)) {
+                return current_root;
+            }
+
+            current_root = next_root;
+            iterations++;
+        }
 
         return current_root;
     }

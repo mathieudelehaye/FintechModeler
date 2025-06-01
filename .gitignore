@@ -21,7 +21,6 @@ x64/
 
 dll.vcxproj.FileListAbsolute.txt
 
-payload.json
 *.tlog
 *.idb
 *.ilk

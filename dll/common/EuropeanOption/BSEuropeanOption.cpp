@@ -5,6 +5,9 @@
 #include <cmath>
 #include <fstream>
 
+// Comment out this line to disable debug logging
+// #define DEBUG_IMPLIED_VOL
+
 BSEuropeanOption::BSEuropeanOption(const PricingModelParameters& params) : EuropeanOption(params) {
     updateInternalParameters();
 }
@@ -14,6 +17,7 @@ double BSEuropeanOption::calculateVegaGreek() {
 }
 
 double BSEuropeanOption::calculateImpliedVolatility(double marketPrice) {
+    #ifdef DEBUG_IMPLIED_VOL
     std::ofstream logFile("implied_vol_debug.log", std::ios::app);
     logFile << "\n\nNew implied volatility calculation:\n";
     logFile << "Market price: " << marketPrice << "\n";
@@ -21,6 +25,7 @@ double BSEuropeanOption::calculateImpliedVolatility(double marketPrice) {
     logFile << "Strike price: " << parameters.strike_price << "\n";
     logFile << "Time to maturity: " << parameters.expiry_time << "\n";
     logFile << "Risk-free rate: " << parameters.continuous_rf_rate << "\n";
+    #endif
 
     // Use current market price to estimate initial volatility guess
     double moneyness = parameters.initial_share_price / parameters.strike_price;
@@ -33,7 +38,9 @@ double BSEuropeanOption::calculateImpliedVolatility(double marketPrice) {
         initialGuess = 0.2;  // Default to 20% if approximation fails
     }
     
+    #ifdef DEBUG_IMPLIED_VOL
     logFile << "Initial guess: " << initialGuess << "\n";
+    #endif
     
     auto optionPriceDifference = [this, marketPrice](double vol) -> double {
         if (vol <= 0.0) return 1e6;  // Avoid negative or zero volatility
@@ -56,19 +63,25 @@ double BSEuropeanOption::calculateImpliedVolatility(double marketPrice) {
         double diff = price - marketPrice;
         double vega = calculateVegaGreek();
         
+        #ifdef DEBUG_IMPLIED_VOL
         logFile << "Iteration " << i << ": vol=" << currentVol 
                 << ", price=" << price << ", target=" << marketPrice 
                 << ", diff=" << diff << ", vega=" << vega 
                 << ", d1=" << internalParameters.d1 
                 << ", d2=" << internalParameters.d2 << "\n";
+        #endif
         
         if (std::abs(diff) < PRICE_TOL) {
+            #ifdef DEBUG_IMPLIED_VOL
             logFile << "Converged on price difference\n";
+            #endif
             break;
         }
         
         if (std::abs(vega) < 1e-10) {
+            #ifdef DEBUG_IMPLIED_VOL
             logFile << "Stopping due to small vega\n";
+            #endif
             break;
         }
         
@@ -77,23 +90,32 @@ double BSEuropeanOption::calculateImpliedVolatility(double marketPrice) {
         // Ensure volatility stays positive and reasonable
         if (newVol <= 0.0) {
             newVol = currentVol / 2.0;
+            #ifdef DEBUG_IMPLIED_VOL
             logFile << "Negative vol, halving to " << newVol << "\n";
+            #endif
         }
         if (newVol > 5.0) {
             newVol = 5.0;
+            #ifdef DEBUG_IMPLIED_VOL
             logFile << "Capping vol at 5.0\n";
+            #endif
         }
         
         if (std::abs(newVol - currentVol) < VOL_TOL) {
+            #ifdef DEBUG_IMPLIED_VOL
             logFile << "Converged on volatility change\n";
+            #endif
             break;
         }
         
         currentVol = newVol;
     }
     
+    #ifdef DEBUG_IMPLIED_VOL
     logFile << "Final implied volatility: " << currentVol << "\n";
     logFile.close();
+    #endif
+
     return currentVol;
 }
 

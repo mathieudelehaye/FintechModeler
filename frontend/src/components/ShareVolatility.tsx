@@ -55,7 +55,7 @@ const ShareVolatilityForm: React.FC = () => {
     setOptionData(null);
     try {
       const res = await fetch(
-        "https://backend20250103203956.azurewebsites.net/api/Options/volatility",
+        "https://backend20250103203956.azurewebsites.net/api/options/volatility",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

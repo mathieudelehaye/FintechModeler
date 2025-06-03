@@ -7,7 +7,7 @@ The application is deployed on Azure: https://calm-beach-0abb2ea03.4.azurestatic
 It is a financial and fintech application developed with:
 - C++ (calculation and pricing)
 - Python (data analysis)
-- C# with ASP.NET (REST API backend)
+- Java with SpringBoot (REST API backend)
 - TypeScript with React (frontend).
 
 It calculates the price of European-style call options using an exponentiated biased lattice random walk within a multi-period binomial tree model.

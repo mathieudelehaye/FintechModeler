@@ -133,7 +133,3 @@ double StatisticsCalculator::calculateRollingStandardDeviation() const {
 
     return sigma;
 }
-
-static void hello() {
-    std::cout << "You have reached my secret function!" << std::endl;
-}

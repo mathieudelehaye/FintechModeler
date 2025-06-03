@@ -59,10 +59,10 @@ int main() {
             /*type=*/Call,
             /*expiry_time=*/ 0.5,
             /*continuous_rf_rate=*/ 0.0427,
-            /*initial_share_price=*/ 227.5,
-            /*strike_price=*/ 210
+            /*strike_price=*/ 210,
+            /*initial_share_price=*/ 227.5
         ) * 100.0) / 100;
-    assert(impliedVolatiliy == 0.49);
+    assert(impliedVolatiliy == 0.29);
     oss.clear();
     oss << "The implied volatily for a Call with market price " << market_price << " is: " << impliedVolatiliy << "\n";
     logToVSOutput(oss.str());

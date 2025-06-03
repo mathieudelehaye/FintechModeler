@@ -8,6 +8,8 @@ __pycache__/
 *.pubxml.user
 *.pubxml
 
+*.code-workspace
+
 # C extensions
 *.so
 *.dll
@@ -19,7 +21,6 @@ x64/
 
 dll.vcxproj.FileListAbsolute.txt
 
-payload.json
 *.tlog
 *.idb
 *.ilk

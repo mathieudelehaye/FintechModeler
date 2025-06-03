@@ -4,11 +4,12 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 
 public interface FintechModelLibrary extends Library {
+    // JNA will look for "fintech_model.dll" under win32-x86-64 in the classpath
     FintechModelLibrary INSTANCE = Native.load("fintech_model", FintechModelLibrary.class);
 
     double PriceEuropeanOption(
-        int optionType,           // 0 for Call, 1 for Put
-        int calculationMethod,    // 0 for Binomial, 1 for BS
+        int optionType,
+        int calculationMethod,
         double expiryTime,
         int periodNumber,
         double volatility,
@@ -19,7 +20,7 @@ public interface FintechModelLibrary extends Library {
 
     double CalculateBSImpliedVolatility(
         double optionMarketPrice,
-        int optionType,          // 0 for Call, 1 for Put
+        int optionType,
         double expiryTime,
         double continuousRfRate,
         double strikePrice,

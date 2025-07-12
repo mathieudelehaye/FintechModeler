@@ -1,12 +1,24 @@
 #pragma once
 
-#ifdef MYLIBRARY_EXPORTS
-#define MYLIBRARY_API __declspec(dllexport)
+// Platform-specific export/import macros
+#if defined(_WIN32) || defined(_WIN64)
+    // Windows DLL export/import
+    #ifdef MYLIBRARY_EXPORTS
+        #define MYLIBRARY_API __declspec(dllexport)
+        #define CALLING_CONVENTION __stdcall
+    #else
+        #define MYLIBRARY_API __declspec(dllimport)
+        #define CALLING_CONVENTION __stdcall
+    #endif
 #else
-#define MYLIBRARY_API __declspec(dllimport)
+    // Linux shared library visibility
+    #ifdef MYLIBRARY_EXPORTS
+        #define MYLIBRARY_API __attribute__((visibility("default")))
+    #else
+        #define MYLIBRARY_API
+    #endif
+    #define CALLING_CONVENTION
 #endif
-
-#define CALLING_CONVENTION __stdcall
 
 extern "C" {
     enum OptionType

@@ -44,18 +44,26 @@ tasks.named('bootRun') {
     mainClass.set('org.example.fintechmodeler.FintechModelerApplication')
 }
 
-def nativeDir = file("$projectDir/../dll/x64/Release")
+def nativeDir = "../dll/x64/Debug"  // Windows DLL path only
 
-task copyNativeLib(type: Copy) {
+// Task for Windows DLL only since Linux .so is handled in Docker
+task copyWindowsLib(type: Copy) {
     from nativeDir
     include "fintech_model.dll"
     into("$buildDir/resources/main/win32-x86-64")
 }
 
-processResources.dependsOn copyNativeLib
+// Make sure copy task runs before processResources
+processResources.dependsOn copyWindowsLib
+
+springBoot {
+    buildInfo()
+}
 
 bootJar {
     from(nativeDir) {
         into 'BOOT-INF/classes/win32-x86-64'
     }
+    // Create a layered JAR for size optimisation
+    layered { }
 }

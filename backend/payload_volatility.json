@@ -1,8 +1,0 @@
-{
-  "initialOptionPrice": 15.25,
-  "type": "call",
-  "expiryTime": 2,
-  "continuousRfRate": 0.02,
-  "initialSharePrice": 100,
-  "strikePrice": 105
-}

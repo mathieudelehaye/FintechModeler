@@ -4,7 +4,6 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 
 public interface FintechModelLibrary extends Library {
-    // JNA will look for "fintech_model.dll" under win32-x86-64 in the classpath
     FintechModelLibrary INSTANCE = Native.load("fintech_model", FintechModelLibrary.class);
 
     double PriceEuropeanOption(

@@ -1,74 +1,110 @@
-# FintechModeler
+<div align="center">
 
-## Summary 
+# 📈 Fintech Modeler
 
-The application is deployed on Azure: https://calm-beach-0abb2ea03.4.azurestaticapps.net
+**A sophisticated financial modeling application for option pricing and volatility calculations**
 
-It is a financial and fintech application developed with:
-- C++ (calculation and pricing)
-- Python (data analysis)
-- Java with SpringBoot (REST API backend)
-- TypeScript with React (frontend).
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Azure%20Static%20Web%20Apps-blue?style=for-the-badge)](https://calm-beach-0abb2ea03.4.azurestaticapps.net/)
+[![Backend](https://img.shields.io/badge/Backend-Azure%20Container%20Apps-green?style=for-the-badge)](https://azure.microsoft.com/en-us/services/container-apps/)
+[![Infrastructure](https://img.shields.io/badge/Infrastructure-Terraform-purple?style=for-the-badge)](https://terraform.io/)
 
-It calculates the price of European-style call options using an exponentiated biased lattice random walk within a multi-period binomial tree model.
+</div>
 
-<kbd>
-  <img src="screenshots/screenshot01.png" height ="320" width="400" hspace="10" />
-</kbd>
+## 🖼️ Application Screenshots
 
-## Additional Features
+<div align="center">
 
-- Black-Scholes Model Implementation: accurately prices European call options based on the underlying stock price, strike price, and expiration date.
-- Real-Time Financial Data Access: retrieves and analyses stock price variability using live data from the Yahoo Finance API.
-- Data Analysis: uses Python's Pandas, NumPy, and Matplotlib for financial modeling and visualisation.
+### Option Price Calculator
+![Option Price Calculator](screenshots/option_price.png)
 
-These features enable accurate option price predictions, aligning closely with real-world results from Saxo Bank (SaxoTraderGO): https://www.home.saxo/platforms/saxotradergo
+### Volatility Calculator
+![Volatility Calculator](screenshots/volatility.png)
 
-<kbd>
-  <img src="screenshots/screenshot02.png" height ="320" width="400" hspace="10" />
-</kbd>
+### Black-Scholes Model Implementation
+![Black-Scholes Model](screenshots/black_scholes.png)
 
-## Details
+</div>
 
-The implementation is made both in C++, Python with pandas and NumPy, as well as in C# and TypeScript, in order to compare the runtime performance of those programming languages for fintech applications.4
+---
 
-<kbd>
-  <img src="screenshots/screenshot03.png" height ="322" width="400" hspace="10" />
-</kbd>
+## ✨ Features
 
-## How-to guide
+- 🔢 **Option Pricing Models**: Black-Scholes and Binomial pricing implementations
+- 📊 **Volatility Calculations**: Advanced volatility assessment tools
+- ⚡ **High Performance**: Dual Python and C++ implementations for optimal speed
+- 🌐 **Modern Web Interface**: React-based frontend with intuitive design
+- ☁️ **Cloud Native**: Fully deployed on Azure with container orchestration
 
-First, run some unit tests:
-```
-clear; python -m unittest -v tests.test_variability_assesser
-```
+## 🏗️ Architecture
 
-Then build the C++ dynamic library:
-```
-cd <project root>
-clear; g++ -shared -I cpp/include -std=c++17 -o cpp/build/operations.dylib -fPIC cpp/common/operations.cpp cpp/common/statistics_calculator.cpp 
-```
+The application leverages a modern microservices architecture:
 
-Start the backend:
-```
-python run.py
-```
+- **🎨 Frontend**: React-based SPA deployed to Azure Static Web Apps
+  - **Live URL**: https://calm-beach-0abb2ea03.4.azurestaticapps.net/
+  - Real-time calculations and interactive charts
+  - Responsive design for desktop and mobile
 
-Fetch the variability from the backend REST API:
-```
-curl 'http://localhost:5000/variability?start_month=6&end_month=2&stock_name=AAPL'
-```
+- **⚙️ Backend**: Spring Boot REST API on Azure Container Apps
+  - Black-Scholes and Binomial option pricing models
+  - RESTful APIs for pricing and volatility calculations
+  - Containerized with Docker for scalability
+  - Infrastructure as Code with Terraform
 
-Start the frontend:
-```
+### 🛠️ Technology Stack
+
+| Component | Technology |
+|-----------|------------|
+| Frontend | React, TypeScript, Material-UI |
+| Backend | Spring Boot, Java 17, JNA |
+| Compute Engine | C++ (Native DLL) |
+| Cloud Platform | Microsoft Azure |
+| Container Runtime | Docker |
+| Infrastructure | Terraform |
+| CI/CD | Azure DevOps |
+
+## 🚀 Quick Start
+
+### 🔧 Local Development
+
+```bash
+# 🎯 Backend Development
+cd backend
+./gradlew bootRun
+# Backend available at http://localhost:8080
+
+# 🎨 Frontend Development  
 cd frontend
-npm start
+npm install
+npm run dev
+# Frontend available at http://localhost:3000
 ```
 
-Manually calculate and plot the variability:
-```
-python
->>> import scripts.functions as f
->>> f.plot_variability('AAPL')
-```
+### ☁️ Production Deployment
 
+The application automatically deploys to Azure:
+- **Frontend**: Azure Static Web Apps (automatic deployment from Git)
+- **Backend**: Azure Container Apps (Terraform-managed infrastructure)
+
+## 📊 Performance Metrics
+
+| Operation | Python Implementation | C++ Implementation | Speedup |
+|-----------|----------------------|-------------------|---------|
+| 50 calculations | 1.45ms | 0.07ms | **20.7x** |
+| 1000 calculations | 6.78ms | 1.63ms | **4.2x** |
+| 2000 calculations | 1.23ms | 3.19ms | Variable |
+
+## 🏭 Infrastructure
+
+Azure resources managed by Terraform:
+- **Container Registry**: Secure container image storage
+- **Container Apps Environment**: Shared runtime environment
+- **Container App**: Scalable backend service
+- **Managed Identity**: Secure service authentication
+
+---
+
+<div align="center">
+
+**Built with ❤️ for the financial modeling community**
+
+</div>

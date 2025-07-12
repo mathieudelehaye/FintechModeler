@@ -1,4 +1,5 @@
 // src/components/OptionPrice.tsx
+import config from '../config';
 import React, { useState } from "react";
 import {
   Container,
@@ -56,12 +57,17 @@ const OptionPricingForm: React.FC = () => {
     setError("");
     setOptionData(null);
     try {
+      const payload = {
+        ...formData,            // user inputs
+        method: "binomial"      // hardcoded method for now
+      };
+
       const res = await fetch(
-        "https://backend20250103203956.azurewebsites.net/api/Options/price",
+        `${config.apiUrl}/api/options/price`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         }
       );
       if (!res.ok) throw new Error("Failed to fetch option price.");

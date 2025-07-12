@@ -1,4 +1,5 @@
 // src/components/ShareVolatilityForm.tsx
+import config from '../config';
 import React, { useState } from 'react';
 import {
   Container,
@@ -55,7 +56,7 @@ const ShareVolatilityForm: React.FC = () => {
     setOptionData(null);
     try {
       const res = await fetch(
-        "https://backend20250103203956.azurewebsites.net/api/options/volatility",
+        `${config.apiUrl}/api/options/volatility`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

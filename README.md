@@ -4,9 +4,11 @@
 
 **A sophisticated financial modeling application for option pricing and volatility calculations**
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Azure%20Static%20Web%20Apps-blue?style=for-the-badge)](https://calm-beach-0abb2ea03.4.azurestaticapps.net/)
-[![Backend](https://img.shields.io/badge/Backend-Azure%20Container%20Apps-green?style=for-the-badge)](https://azure.microsoft.com/en-us/services/container-apps/)
-[![Infrastructure](https://img.shields.io/badge/Infrastructure-Terraform-purple?style=for-the-badge)](https://terraform.io/)
+## 🌐 Live Application
+
+**Try it now: [https://calm-beach-0abb2ea03.4.azurestaticapps.net/](https://calm-beach-0abb2ea03.4.azurestaticapps.net/)**
+
+[![Frontend Status](https://img.shields.io/badge/Frontend-Live%20on%20Azure-brightgreen?style=for-the-badge&logo=microsoft-azure)](https://calm-beach-0abb2ea03.4.azurestaticapps.net/)
 
 </div>
 

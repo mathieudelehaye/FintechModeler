@@ -12,6 +12,15 @@ __pycache__/
 
 payload*.json
 
+terraform.tfvars
+.terraform.lock.hcl
+terraform.tfstate
+infrastructure/tfplan
+.terraform/
+.terraform.tfstate.lock.info
+terraform.tfstate.backup
+terraform.tfstate.*.backup
+
 # C extensions
 *.so
 *.dll

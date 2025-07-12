@@ -59,7 +59,9 @@ RUN chown -R spring:spring /app
 USER spring:spring
 EXPOSE 8080
 
-ENV SPRING_PROFILES_ACTIVE=dev
+# Add build argument with a default value
+ARG SPRING_PROFILES_ACTIVE=dev
+ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 # No need for LD_LIBRARY_PATH since the library will be extracted from the JAR
 

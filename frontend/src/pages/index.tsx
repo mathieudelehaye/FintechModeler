@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>My App</title>
+        <title>Fintech Modeler</title>
         <link rel="icon" href="https://reactjs.org/favicon.ico" />
       </Head>
 

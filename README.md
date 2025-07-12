@@ -15,13 +15,19 @@
 <div align="center">
 
 ### Option Price Calculator
-![Option Price Calculator](screenshots/option_price.png)
+<p align="left">
+    <img src="screenshots/screenshot01.png" alt="Option Price Calculator" width="80%">
+</p>
 
 ### Volatility Calculator
-![Volatility Calculator](screenshots/volatility.png)
+<p align="left">
+    <img src="screenshots/screenshot03.png" alt="Volatility Calculator" width="80%">
+</p>
 
 ### Black-Scholes Model Implementation
-![Black-Scholes Model](screenshots/black_scholes.png)
+<p align="left">
+    <img src="screenshots/screenshot02.png" alt="BS Model Implementation" width="80%">
+</p>
 
 </div>
 

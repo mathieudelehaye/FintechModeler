@@ -7,6 +7,4 @@ const config = {
     : process.env.NEXT_PUBLIC_API_URL || 'https://fintechmodeler-backend.wittyflower-c2822a5a.eastus.azurecontainerapps.io'
 };
 
-console.log('Final API URL:', config.apiUrl);
-
 export default config;

@@ -15,9 +15,20 @@ import {
   Stack,
   Alert,
   CircularProgress,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
-import { Timeline as TimelineIcon, ShowChart as ShowChartIcon } from '@mui/icons-material';
+import { 
+  Timeline as TimelineIcon, 
+  ShowChart as ShowChartIcon,
+  CandlestickChart as CandlestickIcon,
+  TrendingUp as LineIcon 
+} from '@mui/icons-material';
+import dynamic from 'next/dynamic';
 import { polygonApi, PolygonAggsResponse } from '../../services/polygonApi';
+
+// Dynamically import ApexCharts to avoid SSR issues
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 interface TimeSeriesData {
   date: string;
@@ -26,7 +37,10 @@ interface TimeSeriesData {
   low: number;
   close: number;
   volume: number;
+  timestamp: number;
 }
+
+type ChartType = 'candlestick' | 'line' | 'area';
 
 const TimeSeries: React.FC = () => {
   const [symbol, setSymbol] = useState('AAPL');
@@ -34,6 +48,7 @@ const TimeSeries: React.FC = () => {
   const [data, setData] = useState<TimeSeriesData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [chartType, setChartType] = useState<ChartType>('candlestick');
 
   const getDateRange = (timeframe: string) => {
     const today = new Date();
@@ -72,6 +87,7 @@ const TimeSeries: React.FC = () => {
     setError(null);
     
     try {
+      console.log(`Fetching time series data for ${symbol} (${timeframe})...`);
       const { from, to } = getDateRange(timeframe);
       const response: PolygonAggsResponse = await polygonApi.getAggregates(
         symbol.toUpperCase(),
@@ -89,9 +105,10 @@ const TimeSeries: React.FC = () => {
           low: item.l,
           close: item.c,
           volume: item.v,
+          timestamp: item.t,
         }));
         
-        setData(transformedData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+        setData(transformedData.sort((a, b) => a.timestamp - b.timestamp));
       } else {
         setError('No data available for the selected symbol and timeframe');
         setData([]);
@@ -122,8 +139,145 @@ const TimeSeries: React.FC = () => {
       minPrice,
       avgVolume,
       totalReturn,
-      dataPoints: data.length
+      dataPoints: data.length,
+      currentPrice: lastPrice
     };
+  };
+
+  // Prepare chart data
+  const getChartOptions = () => {
+    if (data.length === 0) return {};
+
+    const stats = calculateStats();
+    const isPositive = stats ? stats.totalReturn >= 0 : true;
+
+    const baseOptions = {
+      chart: {
+        type: chartType === 'candlestick' ? 'candlestick' : chartType,
+        height: 500,
+        background: 'transparent',
+        toolbar: {
+          show: true,
+          tools: {
+            download: true,
+            selection: true,
+            zoom: true,
+            zoomin: true,
+            zoomout: true,
+            pan: true,
+            reset: true
+          }
+        },
+        animations: {
+          enabled: true,
+          easing: 'easeinout',
+          speed: 800
+        }
+      },
+      title: {
+        text: `${symbol} - ${timeframe}`,
+        align: 'left',
+        style: {
+          fontSize: '18px',
+          fontWeight: '600',
+          color: '#333'
+        }
+      },
+      xaxis: {
+        type: 'datetime',
+        labels: {
+          format: 'MMM dd',
+          style: {
+            colors: '#666',
+            fontSize: '12px'
+          }
+        }
+      },
+      yaxis: {
+        tooltip: {
+          enabled: true
+        },
+        labels: {
+          formatter: (value: number) => `$${value.toFixed(2)}`,
+          style: {
+            colors: '#666',
+            fontSize: '12px'
+          }
+        }
+      },
+      tooltip: {
+        enabled: true,
+        theme: 'light',
+        x: {
+          format: 'dd MMM yyyy'
+        }
+      },
+      grid: {
+        show: true,
+        borderColor: '#e0e0e0',
+        strokeDashArray: 3
+      },
+      theme: {
+        mode: 'light'
+      }
+    };
+
+    if (chartType === 'candlestick') {
+      return {
+        ...baseOptions,
+        plotOptions: {
+          candlestick: {
+            colors: {
+              upward: '#26a69a',
+              downward: '#ef5350'
+            },
+            wick: {
+              useFillColor: true
+            }
+          }
+        }
+      };
+    } else {
+      return {
+        ...baseOptions,
+        stroke: {
+          curve: 'smooth',
+          width: chartType === 'line' ? 2 : 1
+        },
+        fill: {
+          type: chartType === 'area' ? 'gradient' : 'solid',
+          gradient: chartType === 'area' ? {
+            shadeIntensity: 1,
+            opacityFrom: 0.3,
+            opacityTo: 0.1,
+            stops: [0, 100]
+          } : undefined
+        },
+        colors: [isPositive ? '#26a69a' : '#ef5350']
+      };
+    }
+  };
+
+  const getChartSeries = () => {
+    if (data.length === 0) return [];
+
+    if (chartType === 'candlestick') {
+      return [{
+        name: symbol,
+        data: data.map(item => ({
+          x: item.timestamp,
+          y: [item.open, item.high, item.low, item.close]
+        }))
+      }];
+    } else {
+      return [{
+        name: `${symbol} Price`,
+        data: data.map(item => ({
+          x: item.timestamp,
+          y: item.close
+        }))
+      }];
+    }
   };
 
   const stats = calculateStats();
@@ -139,7 +293,7 @@ const TimeSeries: React.FC = () => {
       
       <Paper sx={{ p: 3, mb: 3 }}>
         <Grid container spacing={3} alignItems="end">
-          <Grid>
+          <Grid sx={{ minWidth: 200 }}>
             <TextField
               fullWidth
               label="Stock Symbol"
@@ -149,7 +303,7 @@ const TimeSeries: React.FC = () => {
               placeholder="e.g., AAPL, GOOGL"
             />
           </Grid>
-          <Grid>
+          <Grid sx={{ minWidth: 150 }}>
             <FormControl fullWidth size="small">
               <InputLabel>Timeframe</InputLabel>
               <Select
@@ -166,15 +320,32 @@ const TimeSeries: React.FC = () => {
             </FormControl>
           </Grid>
           <Grid>
+            <ToggleButtonGroup
+              value={chartType}
+              exclusive
+              onChange={(_, newType) => newType && setChartType(newType)}
+              size="small"
+            >
+              <ToggleButton value="candlestick" aria-label="candlestick">
+                <CandlestickIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value="line" aria-label="line">
+                <LineIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value="area" aria-label="area">
+                <ShowChartIcon fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Grid>
+          <Grid>
             <Button
-              fullWidth
               variant="contained"
               onClick={fetchTimeSeries}
               disabled={loading || !symbol.trim()}
               size="large"
               startIcon={loading ? <CircularProgress size={16} color="inherit" /> : <ShowChartIcon />}
             >
-              {loading ? 'Loading...' : 'Load Data'}
+              {loading ? 'Loading...' : 'Load Chart'}
             </Button>
           </Grid>
         </Grid>
@@ -189,6 +360,7 @@ const TimeSeries: React.FC = () => {
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
           Historical daily data from Polygon.io free tier. Limited to 2 years of history.
+          Use the chart controls to zoom, pan, and download the chart.
         </Typography>
       </Alert>
 
@@ -199,6 +371,14 @@ const TimeSeries: React.FC = () => {
               {symbol} Statistics ({timeframe})
             </Typography>
             <Grid container spacing={3}>
+              <Grid>
+                <Typography variant="body2" color="text.secondary">
+                  Current Price
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  ${stats.currentPrice.toFixed(2)}
+                </Typography>
+              </Grid>
               <Grid>
                 <Typography variant="body2" color="text.secondary">
                   Total Return
@@ -235,6 +415,14 @@ const TimeSeries: React.FC = () => {
                   {(stats.avgVolume / 1000000).toFixed(1)}M
                 </Typography>
               </Grid>
+              <Grid>
+                <Typography variant="body2" color="text.secondary">
+                  Data Points
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  {stats.dataPoints}
+                </Typography>
+              </Grid>
             </Grid>
           </CardContent>
         </Card>
@@ -243,62 +431,23 @@ const TimeSeries: React.FC = () => {
       <Card>
         <CardContent>
           <Typography variant="h6" gutterBottom>
-            {symbol} Price History - {timeframe}
+            {symbol} Price Chart - {timeframe}
           </Typography>
           
           {data.length > 0 ? (
-            <Box sx={{ height: 400, overflow: 'auto' }}>
-              <Grid container spacing={1}>
-                {data.slice(-20).map((item, index) => (
-                  <Grid>
-                    <Paper 
-                      variant="outlined" 
-                      sx={{ 
-                        p: 2, 
-                        bgcolor: index % 2 === 0 ? 'grey.50' : 'white',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ minWidth: 100 }}>
-                        {new Date(item.date).toLocaleDateString()}
-                      </Typography>
-                      <Stack direction="row" spacing={2} alignItems="center">
-                        <Box textAlign="center">
-                          <Typography variant="caption" color="text.secondary">Open</Typography>
-                          <Typography variant="body2">${item.open.toFixed(2)}</Typography>
-                        </Box>
-                        <Box textAlign="center">
-                          <Typography variant="caption" color="text.secondary">High</Typography>
-                          <Typography variant="body2">${item.high.toFixed(2)}</Typography>
-                        </Box>
-                        <Box textAlign="center">
-                          <Typography variant="caption" color="text.secondary">Low</Typography>
-                          <Typography variant="body2">${item.low.toFixed(2)}</Typography>
-                        </Box>
-                        <Box textAlign="center">
-                          <Typography variant="caption" color="text.secondary">Close</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            ${item.close.toFixed(2)}
-                          </Typography>
-                        </Box>
-                        <Box textAlign="center">
-                          <Typography variant="caption" color="text.secondary">Volume</Typography>
-                          <Typography variant="body2">
-                            {(item.volume / 1000000).toFixed(1)}M
-                          </Typography>
-                        </Box>
-                      </Stack>
-                    </Paper>
-                  </Grid>
-                ))}
-              </Grid>
+            <Box sx={{ height: 500, width: '100%' }}>
+              <Chart
+                options={getChartOptions()}
+                series={getChartSeries()}
+                type={chartType === 'candlestick' ? 'candlestick' : chartType}
+                height={500}
+                width="100%"
+              />
             </Box>
           ) : (
             <Box
               sx={{
-                height: 400,
+                height: 500,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -307,11 +456,11 @@ const TimeSeries: React.FC = () => {
               }}
             >
               <Typography color="text.secondary" textAlign="center">
-                {loading ? 'Loading chart data...' : 'Enter a symbol and click "Load Data" to view price history'}
+                {loading ? 'Loading chart data...' : 'Enter a symbol and click "Load Chart" to view price history'}
                 <br />
                 {!loading && (
                   <Typography variant="caption">
-                    Charts will show the last 20 trading days
+                    Interactive financial charts with zoom, pan, and download features
                   </Typography>
                 )}
               </Typography>

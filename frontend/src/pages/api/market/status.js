@@ -2,23 +2,17 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-
-  const { ticker } = req.query;
   
-  // Get API key from environment (secure server-side) - remove NEXT_PUBLIC_ prefix!
+  // Get API key from environment (secure server-side)
   const apiKey = process.env.POLYGON_API_KEY;
   
   if (!apiKey) {
     return res.status(500).json({ error: 'API key not configured' });
   }
 
-  if (!ticker) {
-    return res.status(400).json({ error: 'Ticker parameter required' });
-  }
-
   try {
-    // Call Polygon API with server-side key
-    const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/prev?apikey=${apiKey}`;
+    // Call Polygon market status API
+    const url = `https://api.polygon.io/v1/marketstatus/now?apikey=${apiKey}`;
     const response = await fetch(url);
     
     if (response.status === 429) {
@@ -39,7 +33,7 @@ export default async function handler(req, res) {
     return res.status(200).json(data);
     
   } catch (error) {
-    console.error('Error calling Polygon API:', error);
+    console.error('Error calling Polygon market status API:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }

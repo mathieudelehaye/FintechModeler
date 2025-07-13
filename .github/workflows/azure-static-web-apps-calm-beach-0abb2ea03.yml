@@ -11,7 +11,7 @@ on:
 
 jobs:
   build_and_deploy_job:
-    # only run on push or on pull_request until it’s closed
+    # only run on push or on pull_request until it's closed
     if: |
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' && github.event.action != 'closed')
@@ -36,8 +36,8 @@ jobs:
           # Point at your frontend folder _inside_ the repo:
           app_location: frontend
 
-          # no API project in this repo
-          api_location: ''
+          # Point to your API folder to deploy Azure Functions
+          api_location: frontend/api
 
           # if you do `next export` uncomment this:
           # output_location: out

@@ -1,128 +1,143 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Card,
-  CardContent,
+  Paper,
   Typography,
   TextField,
   Button,
-  Grid,
-  FormControl,
-  InputLabel,
   Select,
   MenuItem,
-  Paper,
+  FormControl,
+  InputLabel,
   Stack,
-  Alert,
-  CircularProgress,
-  ToggleButton,
-  ToggleButtonGroup,
+  Card,
+  CardContent,
+  Grid,
+  Chip,
 } from '@mui/material';
-import { 
-  Timeline as TimelineIcon, 
-  ShowChart as ShowChartIcon,
-  CandlestickChart as CandlestickIcon,
-  TrendingUp as LineIcon 
-} from '@mui/icons-material';
-import dynamic from 'next/dynamic';
-import { polygonApi, PolygonAggsResponse } from '../../services/polygonApi';
+import { Timeline, TrendingUp, ShowChart } from '@mui/icons-material';
+import { polygonApi } from '../../services/polygonApi';
 
-// Dynamically import ApexCharts to avoid SSR issues
-const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
+// Dynamic import for ApexCharts to avoid SSR issues
+const Chart = React.lazy(() => import('react-apexcharts'));
 
-interface TimeSeriesData {
-  date: string;
+interface DataPoint {
+  timestamp: number;
   open: number;
   high: number;
   low: number;
   close: number;
   volume: number;
-  timestamp: number;
 }
 
-type ChartType = 'candlestick' | 'line' | 'area';
-
 const TimeSeries: React.FC = () => {
+  const [data, setData] = useState<DataPoint[]>([]);
+  const [loading, setLoading] = useState(false);
   const [symbol, setSymbol] = useState('AAPL');
   const [timeframe, setTimeframe] = useState('1M');
-  const [data, setData] = useState<TimeSeriesData[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [chartType, setChartType] = useState<ChartType>('candlestick');
+  const [chartType, setChartType] = useState<'line' | 'candlestick'>('candlestick');
 
   const getDateRange = (timeframe: string) => {
     const today = new Date();
-    const from = new Date();
-    
+    const toDate = today.toISOString().split('T')[0];
+    let fromDate: string;
+    let multiplier = 1;
+    let timespan: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year' = 'day';
+
     switch (timeframe) {
+      case '1D':
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        fromDate = yesterday.toISOString().split('T')[0];
+        multiplier = 1;
+        timespan = 'hour';
+        break;
       case '1W':
-        from.setDate(today.getDate() - 7);
+        const weekAgo = new Date(today);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        fromDate = weekAgo.toISOString().split('T')[0];
+        multiplier = 1;
+        timespan = 'day';
         break;
       case '1M':
-        from.setMonth(today.getMonth() - 1);
+        const monthAgo = new Date(today);
+        monthAgo.setMonth(monthAgo.getMonth() - 1);
+        fromDate = monthAgo.toISOString().split('T')[0];
+        multiplier = 1;
+        timespan = 'day';
         break;
       case '3M':
-        from.setMonth(today.getMonth() - 3);
+        const threeMonthsAgo = new Date(today);
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+        fromDate = threeMonthsAgo.toISOString().split('T')[0];
+        multiplier = 1;
+        timespan = 'day';
         break;
       case '6M':
-        from.setMonth(today.getMonth() - 6);
+        const sixMonthsAgo = new Date(today);
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        fromDate = sixMonthsAgo.toISOString().split('T')[0];
+        multiplier = 1;
+        timespan = 'day';
         break;
       case '1Y':
-        from.setFullYear(today.getFullYear() - 1);
+        const yearAgo = new Date(today);
+        yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+        fromDate = yearAgo.toISOString().split('T')[0];
+        multiplier = 1;
+        timespan = 'week';
         break;
       default:
-        from.setMonth(today.getMonth() - 1);
+        const defaultDate = new Date(today);
+        defaultDate.setMonth(defaultDate.getMonth() - 1);
+        fromDate = defaultDate.toISOString().split('T')[0];
+        break;
     }
-    
-    return {
-      from: from.toISOString().split('T')[0],
-      to: today.toISOString().split('T')[0]
-    };
+
+    return { fromDate, toDate, multiplier, timespan };
   };
 
-  const fetchTimeSeries = async () => {
+  const loadData = async () => {
     if (!symbol.trim()) return;
     
-    setLoading(true);
-    setError(null);
-    
     try {
-      console.log(`Fetching time series data for ${symbol} (${timeframe})...`);
-      const { from, to } = getDateRange(timeframe);
-      const response: PolygonAggsResponse = await polygonApi.getAggregates(
-        symbol.toUpperCase(),
-        1,
-        'day',
-        from,
-        to
-      );
+      setLoading(true);
+      const { fromDate, toDate, multiplier, timespan } = getDateRange(timeframe);
+      const response = await polygonApi.getAggregates(symbol, multiplier, timespan, fromDate, toDate);
       
-      if (response.results && response.results.length > 0) {
-        const transformedData: TimeSeriesData[] = response.results.map(item => ({
-          date: new Date(item.t).toISOString().split('T')[0],
-          open: item.o,
-          high: item.h,
-          low: item.l,
-          close: item.c,
-          volume: item.v,
-          timestamp: item.t,
-        }));
-        
-        setData(transformedData.sort((a, b) => a.timestamp - b.timestamp));
+      if (response && response.results && Array.isArray(response.results)) {
+        const processedData: DataPoint[] = response.results
+          .filter(item => 
+            item && item.t && item.o && item.h && item.l && item.c && item.v &&
+            !isNaN(item.o) && !isNaN(item.h) && !isNaN(item.l) && !isNaN(item.c)
+          )
+          .map(item => ({
+            timestamp: item.t,
+            open: Number(item.o),
+            high: Number(item.h),
+            low: Number(item.l),
+            close: Number(item.c),
+            volume: Number(item.v)
+          }))
+          .sort((a, b) => a.timestamp - b.timestamp);
+        setData(processedData);
       } else {
-        setError('No data available for the selected symbol and timeframe');
         setData([]);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch time series data');
+    } catch (error) {
+      console.error('Error fetching time series data:', error);
       setData([]);
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    loadData();
+  }, [symbol, timeframe]);
+
   const calculateStats = () => {
-    if (data.length === 0) return null;
+    if (data.length < 2) return null;
     
     const prices = data.map(d => d.close);
     const volumes = data.map(d => d.volume);
@@ -134,128 +149,29 @@ const TimeSeries: React.FC = () => {
     const firstPrice = prices[0];
     const totalReturn = ((lastPrice - firstPrice) / firstPrice) * 100;
     
-    return {
-      maxPrice,
-      minPrice,
-      avgVolume,
-      totalReturn,
-      dataPoints: data.length,
-      currentPrice: lastPrice
-    };
+    return { maxPrice, minPrice, avgVolume, totalReturn, dataPoints: data.length, currentPrice: lastPrice };
   };
 
-  // Prepare chart data
-  const getChartOptions = () => {
-    if (data.length === 0) return {};
-
+  const getChartOptions = (): ApexCharts.ApexOptions => {
     const stats = calculateStats();
     const isPositive = stats ? stats.totalReturn >= 0 : true;
 
-    const baseOptions = {
-      chart: {
-        type: chartType === 'candlestick' ? 'candlestick' : chartType,
-        height: 500,
-        background: 'transparent',
-        toolbar: {
-          show: true,
-          tools: {
-            download: true,
-            selection: true,
-            zoom: true,
-            zoomin: true,
-            zoomout: true,
-            pan: true,
-            reset: true
-          }
-        },
-        animations: {
-          enabled: true,
-          easing: 'easeinout',
-          speed: 800
-        }
-      },
-      title: {
-        text: `${symbol} - ${timeframe}`,
-        align: 'left',
-        style: {
-          fontSize: '18px',
-          fontWeight: '600',
-          color: '#333'
-        }
-      },
-      xaxis: {
-        type: 'datetime',
-        labels: {
-          format: 'MMM dd',
-          style: {
-            colors: '#666',
-            fontSize: '12px'
-          }
-        }
-      },
-      yaxis: {
-        tooltip: {
-          enabled: true
-        },
-        labels: {
-          formatter: (value: number) => `$${value.toFixed(2)}`,
-          style: {
-            colors: '#666',
-            fontSize: '12px'
-          }
-        }
-      },
-      tooltip: {
-        enabled: true,
-        theme: 'light',
-        x: {
-          format: 'dd MMM yyyy'
-        }
-      },
-      grid: {
-        show: true,
-        borderColor: '#e0e0e0',
-        strokeDashArray: 3
-      },
-      theme: {
-        mode: 'light'
-      }
+    const baseOptions: ApexCharts.ApexOptions = {
+      chart: { type: chartType, height: 500, background: 'transparent', animations: { enabled: false } },
+      title: { text: `${symbol} - ${timeframe}`, align: 'left' },
+      xaxis: { type: 'datetime' },
+      yaxis: { labels: { formatter: (value: number) => value ? `$${value.toFixed(2)}` : '$0' } },
+      tooltip: { enabled: true, theme: 'light', x: { format: 'dd MMM yyyy' } },
+      grid: { show: true, borderColor: '#e0e0e0', strokeDashArray: 3 },
     };
 
     if (chartType === 'candlestick') {
       return {
         ...baseOptions,
-        plotOptions: {
-          candlestick: {
-            colors: {
-              upward: '#26a69a',
-              downward: '#ef5350'
-            },
-            wick: {
-              useFillColor: true
-            }
-          }
-        }
-      };
-    } else {
-      return {
-        ...baseOptions,
-        stroke: {
-          curve: 'smooth',
-          width: chartType === 'line' ? 2 : 1
-        },
-        fill: {
-          type: chartType === 'area' ? 'gradient' : 'solid',
-          gradient: chartType === 'area' ? {
-            shadeIntensity: 1,
-            opacityFrom: 0.3,
-            opacityTo: 0.1,
-            stops: [0, 100]
-          } : undefined
-        },
-        colors: [isPositive ? '#26a69a' : '#ef5350']
+        plotOptions: { candlestick: { colors: { upward: '#26a69a', downward: '#ef5350' }, wick: { useFillColor: true } } }
       };
     }
+    return { ...baseOptions, stroke: { curve: 'smooth', width: 2 }, colors: [isPositive ? '#26a69a' : '#ef5350'] };
   };
 
   const getChartSeries = () => {
@@ -264,20 +180,15 @@ const TimeSeries: React.FC = () => {
     if (chartType === 'candlestick') {
       return [{
         name: symbol,
-        data: data.map(item => ({
-          x: item.timestamp,
-          y: [item.open, item.high, item.low, item.close]
-        }))
-      }];
-    } else {
-      return [{
-        name: `${symbol} Price`,
-        data: data.map(item => ({
-          x: item.timestamp,
-          y: item.close
-        }))
+        data: data.map(item => ({ x: new Date(item.timestamp), y: [item.open, item.high, item.low, item.close] }))
       }];
     }
+    
+    // Correctly transform data for the line chart
+    return [{
+      name: `${symbol} Price`,
+      data: data.map(item => [item.timestamp, item.close])
+    }];
   };
 
   const stats = calculateStats();
@@ -285,32 +196,20 @@ const TimeSeries: React.FC = () => {
   return (
     <Box>
       <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
-        <TimelineIcon color="primary" />
-        <Typography variant="h4" sx={{ fontWeight: 600 }}>
-          Time Series Analysis
-        </Typography>
+        <Timeline color="primary" />
+        <Typography variant="h4" sx={{ fontWeight: 600 }}>Time Series Analysis</Typography>
       </Stack>
       
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Grid container spacing={3} alignItems="end">
-          <Grid sx={{ minWidth: 200 }}>
-            <TextField
-              fullWidth
-              label="Stock Symbol"
-              value={symbol}
-              onChange={(e) => setSymbol(e.target.value.toUpperCase())}
-              size="small"
-              placeholder="e.g., AAPL, GOOGL"
-            />
+        <Grid container spacing={2} alignItems="center">
+          <Grid>
+            <TextField fullWidth label="Symbol" value={symbol} onChange={(e) => setSymbol(e.target.value.toUpperCase())} size="small" />
           </Grid>
-          <Grid sx={{ minWidth: 150 }}>
+          <Grid>
             <FormControl fullWidth size="small">
               <InputLabel>Timeframe</InputLabel>
-              <Select
-                value={timeframe}
-                onChange={(e) => setTimeframe(e.target.value)}
-                label="Timeframe"
-              >
+              <Select value={timeframe} label="Timeframe" onChange={(e) => setTimeframe(e.target.value)}>
+                <MenuItem value="1D">1 Day</MenuItem>
                 <MenuItem value="1W">1 Week</MenuItem>
                 <MenuItem value="1M">1 Month</MenuItem>
                 <MenuItem value="3M">3 Months</MenuItem>
@@ -320,109 +219,34 @@ const TimeSeries: React.FC = () => {
             </FormControl>
           </Grid>
           <Grid>
-            <ToggleButtonGroup
-              value={chartType}
-              exclusive
-              onChange={(_, newType) => newType && setChartType(newType)}
-              size="small"
-            >
-              <ToggleButton value="candlestick" aria-label="candlestick">
-                <CandlestickIcon fontSize="small" />
-              </ToggleButton>
-              <ToggleButton value="line" aria-label="line">
-                <LineIcon fontSize="small" />
-              </ToggleButton>
-              <ToggleButton value="area" aria-label="area">
-                <ShowChartIcon fontSize="small" />
-              </ToggleButton>
-            </ToggleButtonGroup>
+            <FormControl fullWidth size="small">
+              <InputLabel>Chart Type</InputLabel>
+              <Select value={chartType} label="Chart Type" onChange={(e) => setChartType(e.target.value as 'line' | 'candlestick')}>
+                <MenuItem value="line"><Stack direction="row" alignItems="center" spacing={1}><ShowChart fontSize="small" /><span>Line</span></Stack></MenuItem>
+                <MenuItem value="candlestick"><Stack direction="row" alignItems="center" spacing={1}><TrendingUp fontSize="small" /><span>Candlestick</span></Stack></MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
           <Grid>
-            <Button
-              variant="contained"
-              onClick={fetchTimeSeries}
-              disabled={loading || !symbol.trim()}
-              size="large"
-              startIcon={loading ? <CircularProgress size={16} color="inherit" /> : <ShowChartIcon />}
-            >
-              {loading ? 'Loading...' : 'Load Chart'}
-            </Button>
+            <Button fullWidth variant="contained" onClick={loadData} disabled={loading || !symbol.trim()}>Load Chart</Button>
+          </Grid>
+          <Grid>
+            {stats && <Chip label={`${stats.totalReturn.toFixed(1)}%`} color={stats.totalReturn >= 0 ? 'success' : 'error'} size="small" />}
           </Grid>
         </Grid>
       </Paper>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
-
-      <Alert severity="info" sx={{ mb: 3 }}>
-        <Typography variant="body2">
-          Historical daily data from Polygon.io free tier. Limited to 2 years of history.
-          Use the chart controls to zoom, pan, and download the chart.
-        </Typography>
-      </Alert>
-
       {stats && (
         <Card sx={{ mb: 3 }}>
           <CardContent>
-            <Typography variant="h6" gutterBottom>
-              {symbol} Statistics ({timeframe})
-            </Typography>
-            <Grid container spacing={3}>
-              <Grid>
-                <Typography variant="body2" color="text.secondary">
-                  Current Price
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  ${stats.currentPrice.toFixed(2)}
-                </Typography>
-              </Grid>
-              <Grid>
-                <Typography variant="body2" color="text.secondary">
-                  Total Return
-                </Typography>
-                <Typography 
-                  variant="h6" 
-                  color={stats.totalReturn >= 0 ? 'success.main' : 'error.main'}
-                  sx={{ fontWeight: 600 }}
-                >
-                  {stats.totalReturn >= 0 ? '+' : ''}{stats.totalReturn.toFixed(2)}%
-                </Typography>
-              </Grid>
-              <Grid>
-                <Typography variant="body2" color="text.secondary">
-                  High
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  ${stats.maxPrice.toFixed(2)}
-                </Typography>
-              </Grid>
-              <Grid>
-                <Typography variant="body2" color="text.secondary">
-                  Low
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  ${stats.minPrice.toFixed(2)}
-                </Typography>
-              </Grid>
-              <Grid>
-                <Typography variant="body2" color="text.secondary">
-                  Avg Volume
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  {(stats.avgVolume / 1000000).toFixed(1)}M
-                </Typography>
-              </Grid>
-              <Grid>
-                <Typography variant="body2" color="text.secondary">
-                  Data Points
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  {stats.dataPoints}
-                </Typography>
-              </Grid>
+            <Typography variant="h6" gutterBottom>{symbol} Statistics ({timeframe})</Typography>
+            <Grid container spacing={2}>
+              <Grid><Box><Typography variant="body2" color="text.secondary">Current Price</Typography><Typography variant="h6">${stats.currentPrice.toFixed(2)}</Typography></Box></Grid>
+              <Grid><Box><Typography variant="body2" color="text.secondary">Total Return</Typography><Typography variant="h6" color={stats.totalReturn >= 0 ? 'success.main' : 'error.main'}>{stats.totalReturn.toFixed(2)}%</Typography></Box></Grid>
+              <Grid><Box><Typography variant="body2" color="text.secondary">High</Typography><Typography variant="h6">${stats.maxPrice.toFixed(2)}</Typography></Box></Grid>
+              <Grid><Box><Typography variant="body2" color="text.secondary">Low</Typography><Typography variant="h6">${stats.minPrice.toFixed(2)}</Typography></Box></Grid>
+              <Grid><Box><Typography variant="body2" color="text.secondary">Avg Volume</Typography><Typography variant="h6">{(stats.avgVolume / 1000000).toFixed(1)}M</Typography></Box></Grid>
+              <Grid><Box><Typography variant="body2" color="text.secondary">Data Points</Typography><Typography variant="h6">{stats.dataPoints}</Typography></Box></Grid>
             </Grid>
           </CardContent>
         </Card>
@@ -430,40 +254,13 @@ const TimeSeries: React.FC = () => {
 
       <Card>
         <CardContent>
-          <Typography variant="h6" gutterBottom>
-            {symbol} Price Chart - {timeframe}
-          </Typography>
-          
           {data.length > 0 ? (
-            <Box sx={{ height: 500, width: '100%' }}>
-              <Chart
-                options={getChartOptions()}
-                series={getChartSeries()}
-                type={chartType === 'candlestick' ? 'candlestick' : chartType}
-                height={500}
-                width="100%"
-              />
-            </Box>
+            <React.Suspense fallback={<div>Loading chart...</div>}>
+              <Chart key={chartType} options={getChartOptions()} series={getChartSeries()} type={chartType} height={500} width="100%" />
+            </React.Suspense>
           ) : (
-            <Box
-              sx={{
-                height: 500,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                bgcolor: 'grey.50',
-                borderRadius: 1,
-              }}
-            >
-              <Typography color="text.secondary" textAlign="center">
-                {loading ? 'Loading chart data...' : 'Enter a symbol and click "Load Chart" to view price history'}
-                <br />
-                {!loading && (
-                  <Typography variant="caption">
-                    Interactive financial charts with zoom, pan, and download features
-                  </Typography>
-                )}
-              </Typography>
+            <Box height={500} display="flex" alignItems="center" justifyContent="center" bgcolor="grey.50">
+              <Typography color="text.secondary">{loading ? 'Loading chart data...' : 'No data to display.'}</Typography>
             </Box>
           )}
         </CardContent>

@@ -66,10 +66,14 @@ const OptionPricingForm: React.FC = () => {
     setOptionData(null);
     
     try {
+      const payload = {
+        ...formData,            // user inputs
+        method: "binomial"      // hardcoded method for now
+      };
       const res = await fetch(`${config.apiUrl}/api/options/price`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       
       if (!res.ok) throw new Error("Failed to fetch option price.");

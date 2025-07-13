@@ -53,8 +53,8 @@ export default function Home() {
         <title>Fintech Modeler - Professional Options Pricing & Market Analysis</title>
         <meta name="description" content="Advanced financial modeling tool for option pricing, volatility calculations, and real-time market data analysis" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+        <link rel="icon" href="https://reactjs.org/favicon.ico" />
+      </Head> 
 
       <ThemeProvider theme={theme}>
         <CssBaseline />

@@ -1,8 +1,8 @@
 const POLYGON_BASE_URL = 'https://api.polygon.io';
 const API_KEY = process.env.NEXT_PUBLIC_POLY_API_KEY;
 
-// Rate limiting configuration
-const RATE_LIMIT_DELAY = 12000; // 12 seconds between requests (5 requests per minute)
+// Remove the direct API key - it will be handled server-side now
+const RATE_LIMIT_DELAY = 12000; // Keep client-side rate limiting as backup
 let lastRequestTime = 0;
 
 export interface PolygonQuote {
@@ -72,38 +72,26 @@ class PolygonApiService {
   }
 
   private async makeRequest<T>(endpoint: string): Promise<T> {
-    if (!API_KEY) {
-      throw new Error('Polygon API key not configured');
-    }
-
-    const url = `${POLYGON_BASE_URL}${endpoint}${endpoint.includes('?') ? '&' : '?'}apikey=${API_KEY}`;
+    // Use the Azure Function endpoints instead of direct Polygon API
+    const response = await fetch(endpoint);
     
-    try {
-      const response = await fetch(url);
-      
-      if (response.status === 429) {
-        throw new Error('Rate limit exceeded. Please wait before making more requests.');
-      }
-      
-      if (!response.ok) {
-        throw new Error(`Polygon API error: ${response.status} ${response.statusText}`);
-      }
-      
-      return response.json();
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('429')) {
-        throw new Error('Too many requests. Free tier allows 5 requests per minute.');
-      }
-      throw error;
+    if (response.status === 429) {
+      throw new Error('Rate limit exceeded. Please wait before making more requests.');
     }
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status} ${response.statusText}`);
+    }
+    
+    return response.json();
   }
 
-  // Get previous day close for a stock (free tier) - now throttled
+  // Get previous day close for a stock via Azure Function
   async getPreviousClose(ticker: string): Promise<PolygonPreviousClose> {
-    return this.throttledRequest<PolygonPreviousClose>(`/v2/aggs/ticker/${ticker}/prev`);
+    return this.throttledRequest<PolygonPreviousClose>(`/api/stocks/${ticker}/previous-close`);
   }
 
-  // Get aggregated data for time series (free tier - limited) - now throttled
+  // Get aggregated data for time series via Azure Function
   async getAggregates(
     ticker: string,
     multiplier: number = 1,
@@ -111,14 +99,18 @@ class PolygonApiService {
     from: string,
     to: string
   ): Promise<PolygonAggsResponse> {
-    return this.throttledRequest<PolygonAggsResponse>(
-      `/v2/aggs/ticker/${ticker}/range/${multiplier}/${timespan}/${from}/${to}`
-    );
+    const params = new URLSearchParams({
+      multiplier: multiplier.toString(),
+      timespan,
+      from,
+      to
+    });
+    return this.throttledRequest<PolygonAggsResponse>(`/api/stocks/${ticker}/aggregates?${params}`);
   }
 
-  // Get market status (free tier) - now throttled
+  // Get market status via Azure Function
   async getMarketStatus(): Promise<{ market: string; [key: string]: unknown }> {
-    return this.throttledRequest('/v1/marketstatus/now');
+    return this.throttledRequest('/api/market/status');
   }
 
   // Helper function to get date strings

@@ -117,7 +117,7 @@ class PolygonApiService {
   }
 
   // Get market status (free tier) - now throttled
-  async getMarketStatus(): Promise<any> {
+  async getMarketStatus(): Promise<{ market: string; [key: string]: unknown }> {
     return this.throttledRequest('/v1/marketstatus/now');
   }
 

@@ -1,8 +1,8 @@
 import { ReactNode, useState } from 'react';
 import { Box, Tab, Tabs, Typography } from "@mui/material";
 
-import OptionPricingForm from './OptionPrice';
-import ShareVolatilityForm from './ShareVolatility';
+import OptionPricingForm from './OptionPriceForm';
+import ShareVolatilityForm from './ShareVolatilityForm';
 
 interface FeatureTabsProps {
   children?: ReactNode;

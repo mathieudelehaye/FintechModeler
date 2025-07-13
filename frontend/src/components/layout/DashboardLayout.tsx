@@ -13,7 +13,6 @@ import {
   ListItemIcon,
   ListItemText,
   useTheme,
-  useMediaQuery,
   Collapse,
   Avatar,
 } from '@mui/material';
@@ -47,7 +46,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     'market-data': true,
   });
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);

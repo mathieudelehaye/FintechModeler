@@ -36,8 +36,8 @@ jobs:
           # Point at your frontend folder _inside_ the repo:
           app_location: frontend
 
-          # Point to your API folder to deploy Azure Functions
-          api_location: frontend/api
+          # Remove api_location - Next.js API routes are handled automatically
+          # api_location: frontend/api
 
           # if you do `next export` uncomment this:
           # output_location: out

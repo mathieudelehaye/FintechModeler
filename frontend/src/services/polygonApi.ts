@@ -1,6 +1,3 @@
-const POLYGON_BASE_URL = 'https://api.polygon.io';
-const API_KEY = process.env.NEXT_PUBLIC_POLY_API_KEY;
-
 // Remove the direct API key - it will be handled server-side now
 const RATE_LIMIT_DELAY = 12000; // Keep client-side rate limiting as backup
 let lastRequestTime = 0;

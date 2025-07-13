@@ -20,6 +20,7 @@ import {
   Add as AddIcon,
   Refresh as RefreshIcon,
   Info as InfoIcon,
+  Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { polygonApi, PolygonPreviousClose } from '../../services/polygonApi';
 
@@ -33,7 +34,18 @@ interface StockData {
   high: number;
   low: number;
   open: number;
+  cachedAt: number; // Timestamp when data was cached
 }
+
+interface CachedData {
+  stocks: StockData[];
+  marketStatus: string;
+  lastFetchDate: string; // Store as YYYY-MM-DD string for easy comparison
+  lastFetchTime: number;
+}
+
+const CACHE_KEY = 'liveprices_cache';
+const MAX_STOCKS = 5; // Maximum number of stocks allowed
 
 const LivePrices: React.FC = () => {
   const [stockData, setStockData] = useState<StockData[]>([]);
@@ -42,18 +54,72 @@ const LivePrices: React.FC = () => {
   const [symbol, setSymbol] = useState('');
   const [marketStatus, setMarketStatus] = useState<string>('');
   const [loadingProgress, setLoadingProgress] = useState<{current: number, total: number, symbol: string}>({current: 0, total: 0, symbol: ''});
+  const [lastUpdateTime, setLastUpdateTime] = useState<number>(0);
 
   // Default stocks to load
   const defaultStocks = ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'NVDA'];
 
-  const fetchStockData = async (ticker: string) => {
+  // Get today's date in YYYY-MM-DD format
+  const getTodayDateString = (): string => {
+    return new Date().toISOString().split('T')[0];
+  };
+
+  // Cache management functions
+  const saveToCache = (data: StockData[], marketStatus: string) => {
+    const cacheData: CachedData = {
+      stocks: data,
+      marketStatus,
+      lastFetchDate: getTodayDateString(),
+      lastFetchTime: Date.now()
+    };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+    setLastUpdateTime(Date.now());
+  };
+
+  const loadFromCache = (): CachedData | null => {
     try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const data: CachedData = JSON.parse(cached);
+        return data;
+      }
+    } catch (error) {
+      console.error('Error loading cache:', error);
+    }
+    return null;
+  };
+
+  // Check if cache is valid for today
+  const isCacheValidForToday = (cached: CachedData): boolean => {
+    return cached.lastFetchDate === getTodayDateString();
+  };
+
+  const fetchStockData = async (ticker: string): Promise<StockData | null> => {
+    try {
+      console.log(`Fetching ${ticker} data from Polygon.io...`);
       const data: PolygonPreviousClose = await polygonApi.getPreviousClose(ticker);
       
       if (data.results && data.results.length > 0) {
         const result = data.results[0];
         const change = result.c - result.o;
         const changePercent = ((change / result.o) * 100);
+        
+        // Fix timestamp handling for Eastern Time
+        const timestamp = result.t;
+        // Polygon API returns timestamps in milliseconds
+        const date = new Date(timestamp);
+        
+        // Format with Eastern Time zone and full date/time
+        const lastUpdated = date.toLocaleString('en-US', {
+          timeZone: 'America/New_York',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        });
         
         const stockInfo: StockData = {
           symbol: ticker.toUpperCase(),
@@ -64,33 +130,37 @@ const LivePrices: React.FC = () => {
           high: result.h,
           low: result.l,
           open: result.o,
-          lastUpdated: new Date(result.t).toLocaleString(),
+          lastUpdated: lastUpdated,
+          cachedAt: Date.now(),
         };
 
-        setStockData(prev => {
-          const existing = prev.find(stock => stock.symbol === ticker.toUpperCase());
-          if (existing) {
-            return prev.map(stock => 
-              stock.symbol === ticker.toUpperCase() ? stockInfo : stock
-            );
-          }
-          return [...prev, stockInfo];
-        });
+        return stockInfo;
       }
     } catch (error) {
       console.error(`Error fetching data for ${ticker}:`, error);
       throw error;
     }
+    return null;
   };
 
   const handleAddStock = async () => {
     if (symbol.trim()) {
+      if (stockData.length >= MAX_STOCKS) {
+        setError(`Maximum ${MAX_STOCKS} stocks allowed. Remove a stock before adding a new one.`);
+        return;
+      }
+
       setLoading(true);
       setError(null);
       setLoadingProgress({current: 1, total: 1, symbol: symbol.trim()});
       
       try {
-        await fetchStockData(symbol.trim());
+        const stockInfo = await fetchStockData(symbol.trim());
+        if (stockInfo) {
+          const updatedStocks = [...stockData, stockInfo];
+          setStockData(updatedStocks);
+          saveToCache(updatedStocks, marketStatus);
+        }
         setSymbol('');
       } catch (err) {
         setError(`Failed to fetch data for ${symbol}. Please check the symbol and try again.`);
@@ -101,6 +171,12 @@ const LivePrices: React.FC = () => {
     }
   };
 
+  const handleRemoveStock = (symbolToRemove: string) => {
+    const updatedStocks = stockData.filter(stock => stock.symbol !== symbolToRemove);
+    setStockData(updatedStocks);
+    saveToCache(updatedStocks, marketStatus);
+  };
+
   const refreshAllStocks = async () => {
     if (stockData.length === 0) return;
     
@@ -109,6 +185,9 @@ const LivePrices: React.FC = () => {
     
     try {
       const symbols = stockData.map(stock => stock.symbol);
+      const newStockData: StockData[] = [];
+      
+      console.log('Manually refreshing all stock prices...');
       
       // Sequential refresh to respect rate limits
       for (let i = 0; i < symbols.length; i++) {
@@ -116,12 +195,24 @@ const LivePrices: React.FC = () => {
         setLoadingProgress({current: i + 1, total: symbols.length, symbol: ticker});
         
         try {
-          await fetchStockData(ticker);
+          const stockInfo = await fetchStockData(ticker);
+          if (stockInfo) {
+            newStockData.push(stockInfo);
+          }
         } catch (err) {
           console.error(`Failed to refresh ${ticker}:`, err);
-          // Continue with next stock even if one fails
+          // Keep old data if refresh fails
+          const oldStock = stockData.find(s => s.symbol === ticker);
+          if (oldStock) {
+            newStockData.push(oldStock);
+          }
         }
       }
+      
+      // Update cache with new data
+      setStockData(newStockData);
+      saveToCache(newStockData, marketStatus);
+      
     } catch (err) {
       setError('Failed to refresh stock data');
     } finally {
@@ -133,21 +224,35 @@ const LivePrices: React.FC = () => {
   const loadDefaultStocks = async () => {
     setLoading(true);
     setError(null);
-    setStockData([]); // Clear existing data
     
     try {
+      const newStockData: StockData[] = [];
+      
+      // Load only up to MAX_STOCKS
+      const stocksToLoad = defaultStocks.slice(0, MAX_STOCKS);
+      
+      console.log('Loading default stocks from Polygon.io...');
+      
       // Sequential loading to respect rate limits
-      for (let i = 0; i < defaultStocks.length; i++) {
-        const ticker = defaultStocks[i];
-        setLoadingProgress({current: i + 1, total: defaultStocks.length, symbol: ticker});
+      for (let i = 0; i < stocksToLoad.length; i++) {
+        const ticker = stocksToLoad[i];
+        setLoadingProgress({current: i + 1, total: stocksToLoad.length, symbol: ticker});
         
         try {
-          await fetchStockData(ticker);
+          const stockInfo = await fetchStockData(ticker);
+          if (stockInfo) {
+            newStockData.push(stockInfo);
+          }
         } catch (err) {
           console.error(`Failed to load ${ticker}:`, err);
           // Continue with next stock even if one fails
         }
       }
+      
+      // Save to cache
+      setStockData(newStockData);
+      saveToCache(newStockData, marketStatus);
+      
     } catch (err) {
       setError('Failed to load default stocks');
     } finally {
@@ -165,9 +270,40 @@ const LivePrices: React.FC = () => {
     }
   };
 
+  // Initialize component
   useEffect(() => {
-    loadDefaultStocks();
-    checkMarketStatus();
+    const initializeData = async () => {
+      // First, try to load from cache
+      const cached = loadFromCache();
+      
+      if (cached && cached.stocks.length > 0) {
+        // Check if cache is for today
+        if (isCacheValidForToday(cached)) {
+          // Load cached data immediately for instant display
+          console.log('Prices read from cache');
+          setStockData(cached.stocks);
+          setMarketStatus(cached.marketStatus);
+          setLastUpdateTime(cached.lastFetchTime);
+          
+          // Check market status if it's been a while (but don't refresh prices)
+          if (Date.now() - cached.lastFetchTime > 300000) { // 5 minutes
+            checkMarketStatus();
+          }
+        } else {
+          // Cache is from a previous day, need fresh data
+          console.log('Cache is from previous day, fetching fresh data...');
+          await loadDefaultStocks();
+          await checkMarketStatus();
+        }
+      } else {
+        // No cache, load fresh data
+        console.log('No cache found, loading fresh data...');
+        await loadDefaultStocks();
+        await checkMarketStatus();
+      }
+    };
+
+    initializeData();
   }, []);
 
   const formatVolume = (volume: number) => {
@@ -183,6 +319,18 @@ const LivePrices: React.FC = () => {
     return volume.toString();
   };
 
+  const formatLastUpdate = (timestamp: number): string => {
+    const date = new Date(timestamp);
+    return date.toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
@@ -194,6 +342,14 @@ const LivePrices: React.FC = () => {
             <Chip 
               label={`Market: ${marketStatus}`} 
               color={marketStatus === 'open' ? 'success' : 'default'} 
+              variant="outlined" 
+              size="small" 
+            />
+          )}
+          {lastUpdateTime > 0 && (
+            <Chip 
+              label={`Updated: ${formatLastUpdate(lastUpdateTime)}`} 
+              color="info" 
               variant="outlined" 
               size="small" 
             />
@@ -218,12 +374,13 @@ const LivePrices: React.FC = () => {
             placeholder="e.g., TSLA, NVDA, META"
             sx={{ minWidth: 200 }}
             onKeyPress={(e) => e.key === 'Enter' && handleAddStock()}
+            disabled={stockData.length >= MAX_STOCKS}
           />
           <Button
             variant="contained"
             startIcon={loading ? <CircularProgress size={16} color="inherit" /> : <AddIcon />}
             onClick={handleAddStock}
-            disabled={loading || !symbol.trim()}
+            disabled={loading || !symbol.trim() || stockData.length >= MAX_STOCKS}
           >
             Add Stock
           </Button>
@@ -233,7 +390,7 @@ const LivePrices: React.FC = () => {
             onClick={refreshAllStocks}
             disabled={loading || stockData.length === 0}
           >
-            Refresh All
+            Refresh Prices
           </Button>
         </Stack>
         
@@ -254,6 +411,10 @@ const LivePrices: React.FC = () => {
             />
           </Box>
         )}
+        
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+          Prices are cached daily. Use "Refresh Prices" button to get latest data.
+        </Typography>
       </Paper>
 
       {error && (
@@ -264,14 +425,14 @@ const LivePrices: React.FC = () => {
 
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
-          <strong>Free Tier Notice:</strong> Polygon.io free tier allows 5 requests per minute. 
-          Stocks load sequentially to respect rate limits. Data shows previous trading day close prices.
+          <strong>Daily Cache:</strong> Prices are automatically refreshed when you visit this page on a new day. 
+          Use the "Refresh Prices" button to manually update. Maximum {MAX_STOCKS} stocks.
         </Typography>
       </Alert>
 
       <Grid container spacing={3}>
-        {stockData.map((stock) => (
-          <Grid key={stock.symbol}>
+        {stockData.map((stock, index) => (
+          <Grid key={stock.symbol} sx={{ width: { xs: '100%', sm: '50%', md: '33.333%', lg: '20%' } }}>
             <Card sx={{ 
               height: '100%',
               transition: 'transform 0.2s, box-shadow 0.2s',
@@ -290,12 +451,24 @@ const LivePrices: React.FC = () => {
                       Previous Close
                     </Typography>
                   </Box>
-                  <Chip
-                    icon={stock.change >= 0 ? <TrendingUpIcon /> : <TrendingDownIcon />}
-                    label={`${stock.change >= 0 ? '+' : ''}${stock.changePercent.toFixed(2)}%`}
-                    color={stock.change >= 0 ? 'success' : 'error'}
-                    size="small"
-                  />
+                  <Stack direction="row" spacing={0.5}>
+                    <Chip
+                      icon={stock.change >= 0 ? <TrendingUpIcon /> : <TrendingDownIcon />}
+                      label={`${stock.change >= 0 ? '+' : ''}${stock.changePercent.toFixed(2)}%`}
+                      color={stock.change >= 0 ? 'success' : 'error'}
+                      size="small"
+                    />
+                    <Chip
+                      icon={<DeleteIcon />}
+                      onClick={() => handleRemoveStock(stock.symbol)}
+                      size="small"
+                      variant="outlined"
+                      sx={{ 
+                        cursor: 'pointer',
+                        '&:hover': { backgroundColor: 'error.light', color: 'white' }
+                      }}
+                    />
+                  </Stack>
                 </Stack>
                 
                 <Typography variant="h4" component="div" sx={{ mb: 2, fontWeight: 700 }}>
@@ -314,7 +487,7 @@ const LivePrices: React.FC = () => {
                 </Typography>
 
                 <Grid container spacing={1} sx={{ mb: 2 }}>
-                  <Grid>
+                  <Grid sx={{ width: '50%' }}>
                     <Typography variant="caption" color="text.secondary">
                       Open
                     </Typography>
@@ -322,7 +495,7 @@ const LivePrices: React.FC = () => {
                       ${stock.open.toFixed(2)}
                     </Typography>
                   </Grid>
-                  <Grid>
+                  <Grid sx={{ width: '50%' }}>
                     <Typography variant="caption" color="text.secondary">
                       High
                     </Typography>
@@ -330,15 +503,15 @@ const LivePrices: React.FC = () => {
                       ${stock.high.toFixed(2)}
                     </Typography>
                   </Grid>
-                  <Grid>
+                  <Grid sx={{ width: '50%' }}>
                     <Typography variant="caption" color="text.secondary">
                       Low
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      ${stock.low.toFixed(2)}
+                    ${stock.low.toFixed(2)}
                     </Typography>
                   </Grid>
-                  <Grid>
+                  <Grid sx={{ width: '50%' }}>
                     <Typography variant="caption" color="text.secondary">
                       Volume
                     </Typography>

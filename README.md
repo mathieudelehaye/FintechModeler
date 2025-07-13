@@ -107,4 +107,11 @@ Azure resources managed by Terraform:
 
 ---
 
+
+<div align="center">
+
 **Built with ❤️ for the financial modeling community**
+
+⭐ **Star this repository if you found it helpful!**
+
+</div>

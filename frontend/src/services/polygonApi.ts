@@ -54,67 +54,24 @@ export interface PolygonPreviousClose {
 }
 
 class PolygonApiService {
-  private async throttledRequest<T>(endpoint: string): Promise<T> {
-    const now = Date.now();
-    const timeSinceLastRequest = now - lastRequestTime;
-    
-    if (timeSinceLastRequest < RATE_LIMIT_DELAY) {
-      const waitTime = RATE_LIMIT_DELAY - timeSinceLastRequest;
-      console.log(`Rate limiting: waiting ${waitTime}ms before next request`);
-      await new Promise(resolve => setTimeout(resolve, waitTime));
-    }
-    
-    lastRequestTime = Date.now();
-    return this.makeRequest<T>(endpoint);
-  }
+  private baseURL = '/api/stocks';
 
-  private async makeRequest<T>(endpoint: string): Promise<T> {
-    // Use the Azure Function endpoints instead of direct Polygon API
-    const response = await fetch(endpoint);
-    
-    if (response.status === 429) {
-      throw new Error('Rate limit exceeded. Please wait before making more requests.');
-    }
-    
+  async getCurrentPrice(symbol: string) {
+    const url = `${this.baseURL}/${symbol}/current`;
+    const response = await fetch(url);
     if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
     return response.json();
   }
 
-  // Get previous day close for a stock via Azure Function
-  async getPreviousClose(ticker: string): Promise<PolygonPreviousClose> {
-    return this.throttledRequest<PolygonPreviousClose>(`/api/stocks/${ticker}/previous-close`);
-  }
-
-  // Get aggregated data for time series via Azure Function
-  async getAggregates(
-    ticker: string,
-    multiplier: number = 1,
-    timespan: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year' = 'day',
-    from: string,
-    to: string
-  ): Promise<PolygonAggsResponse> {
-    const params = new URLSearchParams({
-      multiplier: multiplier.toString(),
-      timespan,
-      from,
-      to
-    });
-    return this.throttledRequest<PolygonAggsResponse>(`/api/stocks/${ticker}/aggregates?${params}`);
-  }
-
-  // Get market status via Azure Function
-  async getMarketStatus(): Promise<{ market: string; [key: string]: unknown }> {
-    return this.throttledRequest('/api/market/status');
-  }
-
-  // Helper function to get date strings
-  getDateString(daysAgo: number = 0): string {
-    const date = new Date();
-    date.setDate(date.getDate() - daysAgo);
-    return date.toISOString().split('T')[0];
+  async getAggregates(symbol: string, multiplier: number, timespan: string, from: string, to: string) {
+    const url = `${this.baseURL}/${symbol}/aggregates?multiplier=${multiplier}&timespan=${timespan}&from=${from}&to=${to}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
   }
 }
 

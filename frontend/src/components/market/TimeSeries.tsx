@@ -14,9 +14,13 @@ import {
   CardContent,
   Grid,
   Chip,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
-import { Timeline, TrendingUp, ShowChart } from '@mui/icons-material';
+import { Timeline, TrendingUp, ShowChart, Schedule } from '@mui/icons-material';
 import { polygonApi } from '../../services/polygonApi';
+import { useRateLimiter } from '../../hooks/useRateLimiter';
+import { RateLimitStatus } from '../common/RateLimitStatus';
 
 // Dynamic import for ApexCharts to avoid SSR issues
 const Chart = React.lazy(() => import('react-apexcharts'));
@@ -33,9 +37,13 @@ interface DataPoint {
 const TimeSeries: React.FC = () => {
   const [data, setData] = useState<DataPoint[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [symbol, setSymbol] = useState('AAPL');
   const [timeframe, setTimeframe] = useState('1M');
   const [chartType, setChartType] = useState<'line' | 'candlestick'>('candlestick');
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  
+  const { canMakeRequest, makeRequest, secondsUntilNext } = useRateLimiter();
 
   const getDateRange = (timeframe: string) => {
     const today = new Date();
@@ -98,12 +106,26 @@ const TimeSeries: React.FC = () => {
   };
 
   const loadData = async () => {
-    if (!symbol.trim()) return;
+    if (!symbol.trim()) {
+      setError('Please enter a valid symbol');
+      return;
+    }
+    
+    if (!canMakeRequest) {
+      setError(`Rate limit exceeded. Please wait ${secondsUntilNext} seconds.`);
+      return;
+    }
+    
+    setLoading(true);
+    setError(null);
     
     try {
-      setLoading(true);
       const { fromDate, toDate, multiplier, timespan } = getDateRange(timeframe);
-      const response = await polygonApi.getAggregates(symbol, multiplier, timespan, fromDate, toDate);
+      
+      type PolygonAggregatesResponse = { results?: any[] };
+      const response = await makeRequest(() => 
+        polygonApi.getAggregates(symbol, multiplier, timespan, fromDate, toDate)
+      ) as PolygonAggregatesResponse;
       
       if (response && response.results && Array.isArray(response.results)) {
         const processedData: DataPoint[] = response.results
@@ -120,21 +142,25 @@ const TimeSeries: React.FC = () => {
             volume: Number(item.v)
           }))
           .sort((a, b) => a.timestamp - b.timestamp);
+        
         setData(processedData);
+        setLastUpdate(new Date());
+        
+        if (processedData.length === 0) {
+          setError('No data found for the selected symbol and timeframe');
+        }
       } else {
         setData([]);
+        setError('Invalid response format from API');
       }
     } catch (error) {
       console.error('Error fetching time series data:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch data');
       setData([]);
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadData();
-  }, [symbol, timeframe]);
 
   const calculateStats = () => {
     if (data.length < 2) return null;
@@ -184,7 +210,6 @@ const TimeSeries: React.FC = () => {
       }];
     }
     
-    // Correctly transform data for the line chart
     return [{
       name: `${symbol} Price`,
       data: data.map(item => [item.timestamp, item.close])
@@ -197,14 +222,26 @@ const TimeSeries: React.FC = () => {
     <Box>
       <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
         <Timeline color="primary" />
-        <Typography variant="h4" sx={{ fontWeight: 600 }}>Time Series Analysis</Typography>
+        <Typography variant="h4" sx={{ fontWeight: 600 }}>
+          Time Series Analysis
+        </Typography>
       </Stack>
       
+      {/* Control Panel */}
       <Paper sx={{ p: 3, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid>
-            <TextField fullWidth label="Symbol" value={symbol} onChange={(e) => setSymbol(e.target.value.toUpperCase())} size="small" />
+            <TextField 
+              fullWidth 
+              label="Symbol" 
+              value={symbol} 
+              onChange={(e) => setSymbol(e.target.value.toUpperCase())} 
+              size="small"
+              error={!symbol.trim()}
+              helperText={!symbol.trim() ? "Required" : ""}
+            />
           </Grid>
+          
           <Grid>
             <FormControl fullWidth size="small">
               <InputLabel>Timeframe</InputLabel>
@@ -218,53 +255,164 @@ const TimeSeries: React.FC = () => {
               </Select>
             </FormControl>
           </Grid>
+          
           <Grid>
             <FormControl fullWidth size="small">
               <InputLabel>Chart Type</InputLabel>
               <Select value={chartType} label="Chart Type" onChange={(e) => setChartType(e.target.value as 'line' | 'candlestick')}>
-                <MenuItem value="line"><Stack direction="row" alignItems="center" spacing={1}><ShowChart fontSize="small" /><span>Line</span></Stack></MenuItem>
-                <MenuItem value="candlestick"><Stack direction="row" alignItems="center" spacing={1}><TrendingUp fontSize="small" /><span>Candlestick</span></Stack></MenuItem>
+                <MenuItem value="line">
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <ShowChart fontSize="small" />
+                    <span>Line</span>
+                  </Stack>
+                </MenuItem>
+                <MenuItem value="candlestick">
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <TrendingUp fontSize="small" />
+                    <span>Candlestick</span>
+                  </Stack>
+                </MenuItem>
               </Select>
             </FormControl>
           </Grid>
+          
           <Grid>
-            <Button fullWidth variant="contained" onClick={loadData} disabled={loading || !symbol.trim()}>Load Chart</Button>
+            <Button 
+              fullWidth 
+              variant="contained" 
+              onClick={loadData} 
+              disabled={loading || !symbol.trim() || !canMakeRequest}
+              startIcon={loading ? <CircularProgress size={16} /> : null}
+            >
+              {loading ? 'Loading...' : 'Load Chart'}
+            </Button>
           </Grid>
+          
           <Grid>
-            {stats && <Chip label={`${stats.totalReturn.toFixed(1)}%`} color={stats.totalReturn >= 0 ? 'success' : 'error'} size="small" />}
+            <RateLimitStatus />
+          </Grid>
+          
+          <Grid>
+            {stats && (
+              <Chip 
+                label={`${stats.totalReturn.toFixed(1)}%`} 
+                color={stats.totalReturn >= 0 ? 'success' : 'error'} 
+                size="small" 
+              />
+            )}
+            {lastUpdate && (
+              <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 1 }}>
+                <Schedule fontSize="small" color="disabled" />
+                <Typography variant="caption" color="text.secondary">
+                  {lastUpdate.toLocaleTimeString()}
+                </Typography>
+              </Stack>
+            )}
           </Grid>
         </Grid>
       </Paper>
 
+      {/* Error Display */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
+
+      {/* Statistics Card */}
       {stats && (
         <Card sx={{ mb: 3 }}>
           <CardContent>
-            <Typography variant="h6" gutterBottom>{symbol} Statistics ({timeframe})</Typography>
+            <Typography variant="h6" gutterBottom>
+              {symbol} Statistics ({timeframe})
+            </Typography>
             <Grid container spacing={2}>
-              <Grid><Box><Typography variant="body2" color="text.secondary">Current Price</Typography><Typography variant="h6">${stats.currentPrice.toFixed(2)}</Typography></Box></Grid>
-              <Grid><Box><Typography variant="body2" color="text.secondary">Total Return</Typography><Typography variant="h6" color={stats.totalReturn >= 0 ? 'success.main' : 'error.main'}>{stats.totalReturn.toFixed(2)}%</Typography></Box></Grid>
-              <Grid><Box><Typography variant="body2" color="text.secondary">High</Typography><Typography variant="h6">${stats.maxPrice.toFixed(2)}</Typography></Box></Grid>
-              <Grid><Box><Typography variant="body2" color="text.secondary">Low</Typography><Typography variant="h6">${stats.minPrice.toFixed(2)}</Typography></Box></Grid>
-              <Grid><Box><Typography variant="body2" color="text.secondary">Avg Volume</Typography><Typography variant="h6">{(stats.avgVolume / 1000000).toFixed(1)}M</Typography></Box></Grid>
-              <Grid><Box><Typography variant="body2" color="text.secondary">Data Points</Typography><Typography variant="h6">{stats.dataPoints}</Typography></Box></Grid>
+              <Grid>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">Current Price</Typography>
+                  <Typography variant="h6">${stats.currentPrice.toFixed(2)}</Typography>
+                </Box>
+              </Grid>
+              <Grid>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">Total Return</Typography>
+                  <Typography 
+                    variant="h6" 
+                    color={stats.totalReturn >= 0 ? 'success.main' : 'error.main'}
+                  >
+                    {stats.totalReturn.toFixed(2)}%
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">High</Typography>
+                  <Typography variant="h6">${stats.maxPrice.toFixed(2)}</Typography>
+                </Box>
+              </Grid>
+              <Grid>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">Low</Typography>
+                  <Typography variant="h6">${stats.minPrice.toFixed(2)}</Typography>
+                </Box>
+              </Grid>
+              <Grid>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">Avg Volume</Typography>
+                  <Typography variant="h6">{(stats.avgVolume / 1000000).toFixed(1)}M</Typography>
+                </Box>
+              </Grid>
+              <Grid>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">Data Points</Typography>
+                  <Typography variant="h6">{stats.dataPoints}</Typography>
+                </Box>
+              </Grid>
             </Grid>
           </CardContent>
         </Card>
       )}
 
+      {/* Chart Card */}
       <Card>
         <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Price Chart
+          </Typography>
+          
           {data.length > 0 ? (
-            <React.Suspense fallback={<div>Loading chart...</div>}>
-              <Chart key={chartType} options={getChartOptions()} series={getChartSeries()} type={chartType} height={500} width="100%" />
+            <React.Suspense fallback={<Box height={500} display="flex" alignItems="center" justifyContent="center"><CircularProgress /></Box>}>
+              <Chart 
+                key={chartType} 
+                options={getChartOptions()} 
+                series={getChartSeries()} 
+                type={chartType} 
+                height={500} 
+                width="100%" 
+              />
             </React.Suspense>
           ) : (
-            <Box height={500} display="flex" alignItems="center" justifyContent="center" bgcolor="grey.50">
-              <Typography color="text.secondary">{loading ? 'Loading chart data...' : 'No data to display.'}</Typography>
+            <Box 
+              height={500} 
+              display="flex" 
+              alignItems="center" 
+              justifyContent="center" 
+              bgcolor="grey.50"
+            >
+              <Typography color="text.secondary">
+                {loading ? 'Loading chart data...' : 'No data to display. Click "Load Chart" to fetch data.'}
+              </Typography>
             </Box>
           )}
         </CardContent>
       </Card>
+
+      {/* Info Panel */}
+      <Paper sx={{ p: 2, mt: 3, bgcolor: 'info.50' }}>
+        <Typography variant="caption" color="text.secondary">
+          Note: API requests are limited to 5 per minute. Chart updates are rate-limited across all pages.
+        </Typography>
+      </Paper>
     </Box>
   );
 };

@@ -2,12 +2,6 @@
 
 **A sophisticated financial modeling application for option pricing, volatility calculations, and real-time market data analysis**
 
-## 🌐 Live Application
-
-**Try it now: [https://calm-beach-0abb2ea03.4.azurestaticapps.net/](https://calm-beach-0abb2ea03.4.azurestaticapps.net/)**
-
-[![Frontend Status](https://img.shields.io/badge/Frontend-Live%20on%20Azure-brightgreen?style=for-the-badge&logo=microsoft-azure)](https://calm-beach-0abb2ea03.4.azurestaticapps.net/)
-
 ## 🖼️ Application Screenshots
 
 ![Application Screenshot 1](screenshots/screenshot01.png)

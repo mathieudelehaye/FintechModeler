@@ -1,0 +1,3 @@
+[submodule "CppQuantLib"]
+	path = CppQuantLib
+	url = https://github.com/mathieudelehaye/CppQuantLib.git

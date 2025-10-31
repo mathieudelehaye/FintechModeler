@@ -4,3 +4,6 @@
 [submodule "react-next-financial-ui"]
 	path = react-next-financial-ui
 	url = https://github.com/mathieudelehaye/react-next-financial-ui
+[submodule "spring-boot-financial-api"]
+	path = spring-boot-financial-api
+	url = https://github.com/mathieudelehaye/react-next-financial-ui

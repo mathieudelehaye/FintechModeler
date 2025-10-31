@@ -1,3 +1,6 @@
 [submodule "CppQuantLib"]
 	path = CppQuantLib
 	url = https://github.com/mathieudelehaye/CppQuantLib.git
+[submodule "react-next-financial-ui"]
+	path = react-next-financial-ui
+	url = https://github.com/mathieudelehaye/react-next-financial-ui
